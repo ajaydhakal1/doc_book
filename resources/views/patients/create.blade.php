@@ -27,29 +27,6 @@
                     @enderror
                 </div>
 
-                <!-- Password Field -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your password">
-                    @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Confirm Password Field -->
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm
-                        Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Confirm your password">
-                    @error('password_confirmation')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
 
                 <div>
                     <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
@@ -96,38 +73,28 @@
                     @enderror
                 </div>
 
+                <!-- Password Field -->
                 <div>
-                    <label for="medical_history" class="block text-sm font-medium text-gray-700">Medical History(if
-                        any)</label>
-                    <input type="text" id="medical_history" name="medical_history"
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter medical_history name" value="{{ old('medical_history') }}">
-                    @error('medical_history')
+                        placeholder="Enter your password">
+                    @error('password')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
+                <!-- Confirm Password Field -->
                 <div>
-                    <label for="medication" class="block text-sm font-medium text-gray-700">Medication(if any)</label>
-                    <input type="text" id="medication" name="medication"
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm
+                        Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter medication name" value="{{ old('medication') }}">
-                    @error('medication')
+                        placeholder="Confirm your password">
+                    @error('password_confirmation')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700">Disease Category</label>
-                    <input type="text" id="category" name="category"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter category name" value="{{ old('category') }}">
-                    @error('category')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-
 
                 <!-- Submit Button -->
                 <div>

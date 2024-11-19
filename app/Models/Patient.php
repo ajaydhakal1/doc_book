@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,23 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 class Patient extends Model
 {
     protected $fillable = [
-        'name',
-        'email',
+        'user_id',
         'phone',
         'address',
         'age',
         'gender',
-        'category'
     ];
 
+    // Define the relationship with User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function doctor()
+    // Define the relationship with Appointment (A patient can have many appointments)
+    public function appointments()
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->hasMany(Appointment::class);  // Patient can have many appointments
     }
 }
-

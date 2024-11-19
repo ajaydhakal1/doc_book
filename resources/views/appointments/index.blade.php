@@ -25,7 +25,9 @@
                                                 <th class="border border-gray-300 px-4 py-2">Doctor Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Disease</th>
                                                 <th class="border border-gray-300 px-4 py-2">Category</th>
-                                                <th class="border border-gray-300 px-4 py-2">Appointment Date & Time</th>
+                                                <th class="border border-gray-300 px-4 py-2">Appointment Date</th>
+                                                <th class="border border-gray-300 px-4 py-2">Start Time</th>
+                                                <th class="border border-gray-300 px-4 py-2">End Time</th>
                                                 <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
                                             </tr>
                                         </thead>
@@ -33,21 +35,32 @@
                                             @forelse ($appointments as $appointment)
                                                 <tr class="even:bg-gray-100">
                                                     <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->user->name }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->doctor->user->name }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->disease }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->category }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->appointment_datetime->format('Y-m-d H:i') }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">
+                                                        {{ $appointment->patient->user->name }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">
+                                                        {{ $appointment->doctor->user->name }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->disease }}
+                                                    </td>
+                                                    <td class="border border-gray-300 px-4 py-2">
+                                                        {{ $appointment->category }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->date }}
+                                                    </td>
+                                                    <td class="border border-gray-300 px-4 py-2">
+                                                        {{ $appointment->start_time }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">
+                                                        {{ $appointment->end_time }}</td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
                                                         <div class="flex justify-center gap-2">
                                                             <a href="{{ route('appointments.edit', $appointment->id) }}"
                                                                 class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
                                                                 <i class="bi bi-pencil-square"></i> Edit
                                                             </a>
-                                                            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" class="inline">
+                                                            <form
+                                                                action="{{ route('appointments.destroy', $appointment->id) }}"
+                                                                method="POST" class="inline">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" 
+                                                                <button type="submit"
                                                                     class="text-red-500 hover:text-red-700 px-3 py-1 rounded-lg text-sm border border-red-500">
                                                                     <i class="bi bi-trash"></i> Delete
                                                                 </button>
@@ -57,7 +70,8 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td class="text-center text-red-500 px-4 py-2" colspan="6">No appointments found!</td>
+                                                    <td class="text-center text-red-500 px-4 py-2" colspan="6">No
+                                                        appointments found!</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>

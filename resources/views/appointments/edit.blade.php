@@ -48,12 +48,31 @@
 
                 <!-- Appointment Date and Time -->
                 <div>
-                    <label for="appointment_datetime" class="block text-sm font-medium text-gray-700">Appointment Date &
-                        Time</label>
-                    <input type="datetime-local" id="appointment_datetime" name="appointment_datetime"
-                        value="{{ old('appointment_datetime', $appointment->appointment_datetime->format('Y-m-d\TH:i')) }}"
+                    <label for="date" class="block text-sm font-medium text-gray-700">Appointment Date</label>
+                    <input type="date" id="date" name="date"
+                        value="{{ old('date', $appointment->date) }}"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('appointment_datetime')
+                    @error('date')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="start_time" class="block text-sm font-medium text-gray-700">Appointment Start Time</label>
+                    <input type="time" id="start_time" name="start_time"
+                        value="{{ old('start_time', $appointment->start_time) }}"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('start_time')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">Appointment End Time</label>
+                    <input type="time" id="end_time" name="end_time"
+                        value="{{ old('end_time', $appointment->end_time) }}"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('end_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>

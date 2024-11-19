@@ -1,37 +1,88 @@
-<!doctype html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Navbar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    </li>
-                </ul>
+
+    <nav class="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Left Section -->
+                <div class="flex items-center space-x-6">
+                    <!-- Logo -->
+                    <a href="{{ route('home') }}">
+                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                    </a>
+
+                    <!-- Links -->
+                    <a href="{{ route('home') }}"
+                        class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                        Home
+                    </a>
+                    <a href="{{ route('dashboard') }}"
+                        class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                        Dashboard
+                    </a>
+                </div>
+
+                <!-- Right Section -->
+                <div class="flex items-center space-x-4">
+                    @if (!auth()->user())
+                        <!-- Login Button -->
+                        <a href="{{ route('login') }}"
+                            class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                            Login
+                        </a>
+
+                        <!-- Register Dropdown -->
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Register
+                                <svg class="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                class="absolute right-0 mt-2 w-48 bg-gray-500 dark:bg-gray-800 rounded-md shadow-lg z-20">
+                                <a href="{{ route('patients.create') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    Register as Patient
+                                </a>
+                                <a href="{{ route('doctors.create') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    Register as Doctor
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                    <h3 class="px-3 text-white">Welcome, {{auth()->user()->name}}</h3>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}"
+                                class="text-gray-800 dark:text-gray-100 px-3 py-2 rounded bg-red-500 hover:text-white dark:bg-red-500 :hover:text-white"
+                                onclick="event.preventDefault();
+                                this.closest('form').submit();">
+                                Logout
+                            </a>
+                        </form>
+
+                    @endif
+                </div>
             </div>
         </div>
     </nav>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 </body>
 
 </html>

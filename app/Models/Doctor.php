@@ -8,19 +8,19 @@ class Doctor extends Model
 {
     protected $fillable = [
         'user_id',
-        'name',
-        'email',
         'phone',
         'department',
     ];
 
+    // Define the relationship with User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function patient()
+    // Define the relationship with Appointment (A doctor can have many appointments)
+    public function appointments()
     {
-        return $this->hasMany(Patient::class);
+        return $this->hasMany(Appointment::class);  // A doctor can have many appointments
     }
 }

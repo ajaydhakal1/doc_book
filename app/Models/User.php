@@ -49,12 +49,13 @@ class User extends Authenticatable
 
     public function doctor()
     {
-        return $this->hasOne(Doctor::class);
+        return $this->hasOne(Doctor::class);  // A user can have one doctor profile
     }
 
+    // Relationship with Patient
     public function patient()
     {
-        return $this->hasOne(Patient::class);
+        return $this->hasOne(Patient::class);  // A user can have one patient profile
     }
 
 }

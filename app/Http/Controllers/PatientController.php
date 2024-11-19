@@ -39,10 +39,7 @@ class PatientController extends Controller
             'password' => 'required|string|min:8|confirmed', // Ensure password is confirmed
             'phone' => 'required|string',
             'address' => 'nullable|string',
-            'category' => 'nullable|string',
             'gender' => 'required',
-            'medical_history' => 'nullable|string',
-            'medication' => 'nullable|string',
             'age' => 'required|integer',
 
         ]);
@@ -66,10 +63,6 @@ class PatientController extends Controller
         $patient->age = $request->age;
         $patient->gender = $request->gender;
         $patient->address = $request->input('address');
-        $patient->category = $request->input('category');
-        $patient->medical_history = $request->input('medical_history');
-        $patient->medication = $request->input('medication');
-
         // Save the patient data and associate with the user
         $user->patient()->save($patient);
 
@@ -98,9 +91,6 @@ class PatientController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required',
             'address' => 'required|string',
-            'medication' => 'required',
-            'medical_history' => 'required',
-            'category' => 'required',
             'gender' => 'required',
             'age' => 'required|integer',
 
@@ -130,9 +120,6 @@ class PatientController extends Controller
         $patient->phone = $request->input('phone');
         $patient->age = $request->age;
         $patient->address = $request->input('address');
-        $patient->category = $request->input('category');
-        $patient->medical_history = $request->input('medical_history');
-        $patient->medication = $request->input('medication');
         $patient->gender = $request->gender;
         $patient->save();
 

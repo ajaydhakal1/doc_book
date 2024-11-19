@@ -2,9 +2,8 @@
     <div class="py-12">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h1 class="text-center text-xl font-bold mb-6">Create Appointment</h1>
-            <form action="{{ route('appointments.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('appointments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
-
                 <!-- Disease Field -->
                 <div>
                     <label for="disease" class="block text-sm font-medium text-gray-700">Disease</label>
@@ -17,10 +16,11 @@
                 </div>
 
                 <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700">Disease Category</label>
+                    <label for="category" class="block text-sm font-medium text-gray-700">Disease Category
+                        (Optional)</label>
                     <input type="text" id="category" name="category"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter disease category if you know" value="{{ old('category') }}">
+                        placeholder="Enter disease category (if you know)" value="{{ old('category') }}">
                     @error('category')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -45,24 +45,50 @@
 
                 <!-- Date and Time Field -->
                 <div>
-                    <label for="appointment_datetime" class="block text-sm font-medium text-gray-700">Appointment Date &
-                        Time</label>
-                    <input type="datetime-local" id="appointment_datetime" name="appointment_datetime"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        value="{{ old('appointment_datetime') }}">
-                    @error('appointment_datetime')
+                    <label for="date" class="block text-sm font-medium text-gray-700">Appointment
+                        Date</label>
+                    <input type="date" min="{{Carbon\Carbon::now()->format('Y-m-d')}}" name="date"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('date')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
+                    <input type="time" min="{{Carbon\Carbon::now()}}" name="start_time"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('start_time')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
+                    <input type="time" min="{{Carbon\Carbon::now()}}" name="end_time"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('end_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <!-- Submit Button -->
-                <div>
-                    <button type="submit"
-                        class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300">
-                        Create Appointment
-                    </button>
-                </div>
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300">
+                    Create Appointment
+                </button>
             </form>
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    // Add event listener to the form submit event
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (event) {
+            // Prevent default form submission
+            event.preventDefault();
+        });
+    });
+</script>

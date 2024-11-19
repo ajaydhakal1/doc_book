@@ -18,9 +18,6 @@ return new class extends Migration {
             $table->string('address');
             $table->integer('age');
             $table->enum('gender', ['male', 'female', 'others']);
-            $table->string('medical_history')->nullable();
-            $table->string('medication')->nullable();
-            $table->string('category');
             $table->timestamps();
         });
     }

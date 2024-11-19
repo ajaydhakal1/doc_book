@@ -7,26 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Appointment extends Model
 {
     protected $fillable = [
-        'user_id',
+        'patient_id',  // Corrected to use patient_id
         'doctor_id',
         'disease',
         'category',
-        'appointment_datetime',
+        'date',
+        'start_time',
+        'end_time',
     ];
 
-
-    protected $casts = [
-        'appointment_datetime' => 'datetime',  // Cast to Carbon instance
-    ];
-
-    public function user()
+    // Define the relationship with Patient
+    public function patient()
     {
-        return $this->belongsTo(User::class);  // Assuming the 'appointments' table has a 'user_id' column
+        return $this->belongsTo(Patient::class, 'patient_id');  // 'patient_id' is the foreign key
     }
 
-    // Relationship with Doctor (assuming you have a 'doctors' table and a 'doctor_id' column in 'appointments' table)
+    // Define the relationship with Doctor
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class);  // Assuming the 'appointments' table has a 'doctor_id' column
+        return $this->belongsTo(Doctor::class, 'doctor_id');  // 'doctor_id' is the foreign key
     }
 }

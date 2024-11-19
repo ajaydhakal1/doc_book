@@ -24,6 +24,7 @@
                                                 <th class="border border-gray-300 px-4 py-2">#</th>
                                                 <th class="border border-gray-300 px-4 py-2">Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Email</th>
+                                                <th class="border border-gray-300 px-4 py-2">Department</th>
                                                 <th class="border border-gray-300 px-4 py-2">Created At</th>
                                                 <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
                                             </tr>
@@ -34,6 +35,7 @@
                                                     <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $doctor->user->name }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $doctor->user->email }}</td>
+                                                    <td class="border border-gray-300 px-4 py-2">{{ $doctor->department }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $doctor->created_at }}
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
