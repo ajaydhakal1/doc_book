@@ -49,8 +49,7 @@
                 <!-- Appointment Date and Time -->
                 <div>
                     <label for="date" class="block text-sm font-medium text-gray-700">Appointment Date</label>
-                    <input type="date" id="date" name="date"
-                        value="{{ old('date', $appointment->date) }}"
+                    <input type="date" id="date" name="date" value="{{ old('date', $appointment->date) }}"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                     @error('date')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -58,21 +57,25 @@
                 </div>
 
                 <div>
-                    <label for="start_time" class="block text-sm font-medium text-gray-700">Appointment Start Time</label>
-                    <input type="time" id="start_time" name="start_time"
-                        value="{{ old('start_time', $appointment->start_time) }}"
+                    <label for="time" class="block text-sm font-medium text-gray-700">Appointment Time</label>
+                    <input type="time" id="time" name="time" value="{{ old('time', $appointment->time) }}"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('start_time')
+                    @error('time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
+                <!-- Status Field -->
                 <div>
-                    <label for="end_time" class="block text-sm font-medium text-gray-700">Appointment End Time</label>
-                    <input type="time" id="end_time" name="end_time"
-                        value="{{ old('end_time', $appointment->end_time) }}"
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('end_time')
+                        <option value="booked" {{ old('status', $appointment->status) == 'booked' ? 'selected' : '' }}>
+                            Booked</option>
+                        <option value="incomplete" {{ old('status', $appointment->status) == 'incomplete' ? 'selected' : '' }}>Incomplete</option>
+                        <option value="completed" {{ old('status', $appointment->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                    </select>
+                    @error('status')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>

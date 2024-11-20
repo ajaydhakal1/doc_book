@@ -5,11 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class AppointmentController extends Controller
+class AppointmentController extends Controller implements HasMiddleware
 {
+
+    public static function middleware()
+    {
+        return [
+            new Middleware('permission:view appointments', only: ['index']),
+            new Middleware('permission:create appointments', only: ['create']),
+            new Middleware('permission:edit appointments', only: ['edit']),
+            new Middleware('permission:delete appointments', only: ['destroy']),
+            new Middleware('permission:edit own appointment', only: ['editMyAppointment']),
+            new Middleware('permission:delete own appointment', only: ['deleteMyAppointment']),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -42,8 +59,7 @@ class AppointmentController extends Controller
             'disease' => 'required|string',
             'doctor_id' => 'required|exists:doctors,id',
             'date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'time' => 'required',
         ]);
 
         // Assuming the patient_id is related to the authenticated user
@@ -59,9 +75,8 @@ class AppointmentController extends Controller
         $appointment->disease = $request->disease;
         $appointment->category = $request->category;  // Optional
         $appointment->date = $request->date;
-        $appointment->start_time = $request->start_time;
-        $appointment->end_time = $request->end_time;
-
+        $appointment->time = $request->time;
+        $appointment->status = "booked";
         // Save the appointment
         $appointment->save();
 
@@ -97,8 +112,8 @@ class AppointmentController extends Controller
         $appointment->doctor_id = $request->doctor_id;
         $appointment->category = $request->category;
         $appointment->date = $request->date;
-        $appointment->start_time = $request->start_time;
-        $appointment->end_time = $request->end_time;
+        $appointment->time = $request->time;
+        $appointment->status = $request->status;
         $appointment->save();
 
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully');
@@ -119,11 +134,48 @@ class AppointmentController extends Controller
 
     public function myAppointments()
     {
+        // Get the logged-in user's associated patient ID
+        $patient = Patient::where('user_id', Auth::id())->first();
+
+        if (!$patient) {
+            // Handle the case where the user is not a patient
+            return redirect()->route('home')->with('error', 'You do not have any appointments.');
+        }
+
         // Fetch appointments for the logged-in patient
-        $appointments = Appointment::where('patient_id', Auth::id())
-            ->orderBy('appointment_date', 'asc')
+        $appointments = Appointment::where('patient_id', $patient->id)
+            ->orderBy('date', 'asc') // Ensure column names match your table schema
             ->get();
 
         return view('appointments.my-appointments', compact('appointments'));
     }
+
+    public function editMyAppointment($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        $userId = Auth::user()->id;
+        $patient = Patient::where('user_id', $userId)->first();
+        $patientId = $patient->id;
+        if ($appointment->patient_id !== $patientId) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $doctors = Doctor::all();
+        return view('appointments.edit', compact('appointment', 'doctors'));
+    }
+
+    public function deleteMyAppointment($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+
+        if ($appointment->patient_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $appointment->delete();
+        return redirect()->route('appointments.index')->with('success', 'Appointment deleted successfully.');
+    }
+
+
+
 }

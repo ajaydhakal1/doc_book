@@ -30,3 +30,5 @@ Route::resource('appointments', AppointmentController::class);
 Route::resource('permissions', PermissionController::class);
 Route::resource('roles', RoleController::class);
 Route::get('my-appointments', [AppointmentController::class, 'myAppointments'])->name('my-appointments')->middleware('auth');
+Route::put('/appointments/{id}/edit', [AppointmentController::class, 'editMyAppointment'])->name('editMyAppointment');
+Route::delete('/appointments/{id}', [AppointmentController::class, 'deleteMyAppointment'])->name('deleteMyAppointment');

@@ -12,8 +12,8 @@ class Appointment extends Model
         'disease',
         'category',
         'date',
-        'start_time',
-        'end_time',
+        'time',
+        'status'
     ];
 
     // Define the relationship with Patient

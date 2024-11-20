@@ -26,8 +26,8 @@
                                                 <th class="border border-gray-300 px-4 py-2">Disease</th>
                                                 <th class="border border-gray-300 px-4 py-2">Category</th>
                                                 <th class="border border-gray-300 px-4 py-2">Appointment Date</th>
-                                                <th class="border border-gray-300 px-4 py-2">Start Time</th>
-                                                <th class="border border-gray-300 px-4 py-2">End Time</th>
+                                                <th class="border border-gray-300 px-4 py-2">Time</th>
+                                                <th class="border border-gray-300 px-4 py-2">Status</th>
                                                 <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
                                             </tr>
                                         </thead>
@@ -46,9 +46,9 @@
                                                     <td class="border border-gray-300 px-4 py-2">{{ $appointment->date }}
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->start_time }}</td>
+                                                        {{ $appointment->time }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->end_time }}</td>
+                                                        {{ $appointment->status }}</td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
                                                         <div class="flex justify-center gap-2">
                                                             <a href="{{ route('appointments.edit', $appointment->id) }}"
@@ -70,7 +70,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td class="text-center text-red-500 px-4 py-2" colspan="6">No
+                                                    <td class="text-center text-red-500 px-4 py-2" colspan="9">No
                                                         appointments found!</td>
                                                 </tr>
                                             @endforelse

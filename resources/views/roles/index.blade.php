@@ -37,6 +37,7 @@
                                 <td class="px-6 py-3">
                                     {{ \Carbon\Carbon::parse($role->created_at)->format('d M Y') }}
                                 </td>
+                                @can('edit roles')
                                 <td class="px-6 py-3 text-center">
                                     <a href="{{ route('roles.edit', $role->id) }}">
                                         <button
@@ -45,6 +46,8 @@
                                         </button>
                                     </a>
                                 </td>
+                                @endcan
+                                @can('delete roles')
                                 <td class="px-6 py-3 text-center">
                                     <form action="{{ route('roles.destroy', $role->id) }}" method="POST">
                                         @csrf
@@ -55,6 +58,7 @@
                                         </button>
                                     </form>
                                 </td>
+                                @endcan
                             </tr>
                         @empty
                             <tr>

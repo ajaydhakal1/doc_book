@@ -5,11 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role; // Make sure to import the Role model
+use Spatie\Permission\Models\Role;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware; // Make sure to import the Role model
 
 
-class DoctorController extends Controller
+class DoctorController extends Controller implements HasMiddleware
 {
+
+    public static function middleware()
+    {
+        return [
+            new Middleware('permission:view doctors', only: ['index']),
+            new Middleware('permission:edit doctors', only: ['edit']),
+            new Middleware('permission:create doctors', only: ['create']),
+            new Middleware('permission:delete doctors', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -41,10 +41,13 @@
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
                                                         <div class="flex justify-center gap-2">
+                                                            @can('edit users')
                                                             <a href="{{ route('users.edit', $user->id) }}"
                                                                 class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
                                                                 <i class="bi bi-pencil-square"></i> Edit
                                                             </a>
+                                                            @endcan
+                                                            @can('delete users')
                                                             <form action="{{ route('users.destroy', $user->id) }}"
                                                                 method="POST" class="inline">
                                                                 @csrf
@@ -54,6 +57,7 @@
                                                                     <i class="bi bi-trash"></i> Delete
                                                                 </button>
                                                             </form>
+                                                            @endcan
                                                         </div>
                                                     </td>
                                                 </tr>

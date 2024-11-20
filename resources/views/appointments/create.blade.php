@@ -55,19 +55,10 @@
                 </div>
 
                 <div>
-                    <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                    <input type="time" min="{{Carbon\Carbon::now()}}" name="start_time"
+                    <label for="time" class="block text-sm font-medium text-gray-700">Start Time</label>
+                    <input type="time" min="{{Carbon\Carbon::now()}}" name="time"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('start_time')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
-                    <input type="time" min="{{Carbon\Carbon::now()}}" name="end_time"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('end_time')
+                    @error('time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>

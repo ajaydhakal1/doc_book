@@ -12,30 +12,42 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Home') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+                    @can('view users')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         {{ __('Users') }}
                     </x-nav-link>
+                    @endcan
+                    @can('view doctors')
                     <x-nav-link :href="route('doctors.index')" :active="request()->routeIs('doctors.index')">
                         {{ __('Doctors') }}
                     </x-nav-link>
+                    @endcan
+                    @can('view patients')
                     <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
                         {{ __('Patients') }}
                     </x-nav-link>
+                    @endcan
+                    @can('view appointments')
                     <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
                         {{ __('Appointments') }}
                     </x-nav-link>
+                    @endcan
+                    @can('view permissions')
                     <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.index')">
                         {{ __('Permissions') }}
                     </x-nav-link>
+                    @endcan
+                    @can('view roles')
                     <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
                         {{ __('Roles') }}
                     </x-nav-link>
+                    @endcan
                 </div>
             </div>
 

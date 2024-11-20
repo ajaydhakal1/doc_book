@@ -30,6 +30,10 @@
                         class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                         Dashboard
                     </a>
+                    <a href="{{ route('doctors.index') }}"
+                        class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                        Doctors
+                    </a>
                 </div>
 
                 <!-- Right Section -->
