@@ -43,9 +43,10 @@ class AppointmentController extends Controller implements HasMiddleware
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $doctors = Doctor::all();
+        $speciality = $request->speciality_id;
+        $doctors = Doctor::where('speciality_id', $speciality)->get();
         $patients = Patient::all(); // Fetch all doctors
         return view('appointments.create', compact('doctors', 'patients'));
     }
@@ -74,11 +75,11 @@ class AppointmentController extends Controller implements HasMiddleware
 
         // Assuming the patient_id is related to the authenticated user
 
-        $userId = Auth::user()->id;
-        $patient = Patient::where('user_id', $userId)->first();
-        $patientId = $patient->id;
-
+        
         if (Auth::user()->hasRole('Patient')) {
+            $userId = Auth::user()->id;
+            $patient = Patient::where('user_id', $userId)->first();
+            $patientId = $patient->id;
             $appointment = new Appointment();
             $appointment->patient_id = $patientId;  // Assign the patient's ID
             $appointment->doctor_id = $request->doctor_id;
@@ -94,8 +95,8 @@ class AppointmentController extends Controller implements HasMiddleware
             return redirect()->route('home')->with('success', 'Appointment created successfully!');
         } else if (Auth::user()->hasRole('Admin')) {
             $appointment = new Appointment();
-
-            $appointment->patient_id = $request->patient_id;
+            $patientId = $request->input('patient_id');
+            $appointment->patient_id = $patientId;
             $appointment->doctor_id = $request->doctor_id;
             $appointment->disease = $request->disease;
             $appointment->category = $request->category;  // Optional
@@ -214,7 +215,5 @@ class AppointmentController extends Controller implements HasMiddleware
         $appointment->delete();
         return redirect()->route('appointments.index')->with('success', 'Appointment deleted successfully.');
     }
-
-
 
 }

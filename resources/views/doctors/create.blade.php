@@ -38,16 +38,21 @@
                     @enderror
                 </div>
 
-                <!-- Department Field -->
+                <!-- Speciality Field -->
                 <div>
-                    <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
-                    <input type="text" id="department" name="department"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your department">
-                    @error('department')
+                    <label for="speciality_id" class="block text-sm font-medium text-gray-700">Speciality</label>
+                    <select id="speciality_id" name="speciality_id"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                        @foreach ($specialities as $speciality)
+                            <option value="{{ $speciality->id }}">{{ $speciality->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('speciality_id')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+
 
                 <!-- Password Field -->
                 <div>

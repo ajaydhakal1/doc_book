@@ -9,7 +9,7 @@ class Doctor extends Model
     protected $fillable = [
         'user_id',
         'phone',
-        'department',
+        'speciality_id', // Match schema column
     ];
 
     // Define the relationship with User
@@ -18,13 +18,21 @@ class Doctor extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Define the relationship with Appointment (A doctor can have many appointments)
+    // Define the relationship with Appointment
     public function appointments()
     {
-        return $this->hasMany(Appointment::class);  // A doctor can have many appointments
+        return $this->hasMany(Appointment::class);
     }
 
-    public function schedules(){
+    // Define the relationship with Schedules
+    public function schedules()
+    {
         return $this->hasMany(Schedule::class);
+    }
+
+    // Define the relationship with Speciality
+    public function speciality()
+    {
+        return $this->belongsTo(Speciality::class);
     }
 }

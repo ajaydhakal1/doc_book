@@ -7,7 +7,7 @@
                         <div class="bg-white border border-gray-200 rounded-lg shadow-lg">
                             <div class="bg-blue-500 text-white p-4 flex justify-between items-center rounded-t-lg">
                                 <h1 class="text-lg font-bold">Appointments List</h1>
-                                <a href="{{ route('appointments.create') }}"
+                                <a href="{{ route('specialities.choose') }}"
                                     class="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
                                     <i class="bi bi-plus-circle"></i> Add Appointment
                                 </a>

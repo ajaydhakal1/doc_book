@@ -28,6 +28,9 @@
                         {{ __('Doctors') }}
                     </x-nav-link>
                     @endcan
+                    <x-nav-link :href="route('specialities.index')" :active="request()->routeIs('specialities.index')">
+                        {{ __('Specialities') }}
+                    </x-nav-link>
                     @can('view patients')
                     <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
                         {{ __('Patients') }}

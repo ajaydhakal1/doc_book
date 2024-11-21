@@ -1,11 +1,12 @@
 <x-app-layout>
-
     <h1 class="text-center text-white text-2xl font-bold py-6">Edit Doctor</h1>
     <div class="py-6">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <form action="{{ route('doctors.update', $doctor->user->id) }}" method="post" class="space-y-6">
                 @method('PUT')
                 @csrf
+
+                <x-message></x-message>
                 <!-- Name Field -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
@@ -27,32 +28,21 @@
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
-                <!-- Department Field -->
+                <!-- Speciality Field -->
                 <div>
-                    <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                    <input type="text" id="department" name="department" value="{{ $doctor->department }}"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label for="status" class="block text-lg font-medium mb-2">Status</label>
-                    <select id="status" name="status"
-                        class="w-full md:w-1/2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm rounded-lg focus:ring focus:ring-blue-500 focus:outline-none">
-                        <option value="" disabled selected>Select a status</option>
-                        @forelse ($doctor->schedules as $schedule)
-                            <option value="{{ $schedule->status }}">
-                                {{ $schedule->status }}
+                    <label for="speciality_id" class="block text-sm font-medium text-gray-700">Speciality</label>
+                    <select id="speciality_id" name="speciality_id"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                        @foreach ($specialities as $speciality)
+                            <option value="{{ $speciality->id }}" {{ $doctor->speciality_id == $speciality->id ? 'selected' : '' }}>
+                                {{ $speciality->name }}
                             </option>
-                        @empty
-                            <option value="" disabled>No statuses available</option>
-                        @endforelse
+                        @endforeach
                     </select>
-                    @error('status')
-                        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    @error('speciality_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-
-
 
                 <!-- Submit Button -->
                 <div class="text-center">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use App\Models\Schedule;
+use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -28,123 +29,91 @@ class DoctorController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $doctors = Doctor::with('schedules')->get(); // Eager load schedules
+        $doctors = Doctor::with('speciality', 'user')->get();
         return view('doctors.index', compact('doctors'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('doctors.create');
+        $specialities = Speciality::all();
+        return view('doctors.create', compact('specialities'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string',
-            'department' => 'required|string',
+            'speciality_id' => 'required|exists:specialities,id',
         ]);
 
         // Create a new user
-        $user = new User();
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->password = bcrypt($request->input('password'));
-        $user->save();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
 
-        // Assign the "doctor" role to the user
         $user->assignRole('Doctor');
 
-        // Create a new doctor record
-        $doctor = new Doctor();
-        $doctor->phone = $request->input('phone');
-        $doctor->department = $request->input('department');
-        $user->doctor()->save($doctor);
+        // Create the associated doctor record
+        Doctor::create([
+            'user_id' => $user->id,
+            'phone' => $request->phone,
+            'speciality_id' => $request->speciality_id,
+        ]);
 
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
-        $doctor = Doctor::with('schedules')->find($id);
-
+        $doctor = Doctor::with('speciality')->find($id);
+        $specialities = Speciality::all();
         if (!$doctor) {
             return redirect()->route('doctors.index')->with('error', 'Doctor not found');
         }
 
-        return view('doctors.edit', compact('doctor'));
+        return view('doctors.edit', compact('doctor', 'specialities'));
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string',
-            'department' => 'required|string',
+            'phone' => 'required',
+            'speciality_id' => 'required',
         ]);
 
-        // Find the User
         $user = User::find($id);
 
-        if (!$user) {
-            return back()->with('error', 'User not found');
-        }
-
-        // Update User attributes
+        // Update user details
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->save();
 
-        // Check if the User has an associated Doctor record
         $doctor = $user->doctor;
 
         if (!$doctor) {
             return back()->with('error', 'Doctor record not found');
         }
 
-        // Update Doctor attributes
+        // Update doctor details
         $doctor->phone = $request->input('phone');
-        $doctor->department = $request->input('department');
-
-        $schedule = Schedule::find('doctor_id', $doctor->id);
-        $schedule->status = $request->status;
+        $doctor->speciality_id = $request->input('speciality_id');
         $doctor->save();
 
         return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return back()->with('error', 'Doctor not found');
-        }
-
-        $user->doctor()->delete(); // Delete the associated doctor record
-        $user->delete(); // Delete the user record
-
-        return back()->with('success', 'Doctor deleted successfully');
+        $doctor = Doctor::findOrFail($id);
+        $doctor->user->delete(); // Cascade delete user and related doctor
+        return redirect()->route('doctors.index')->with('success', 'Doctor deleted successfully');
     }
 }

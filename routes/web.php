@@ -7,6 +7,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SpecialityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ require __DIR__ . '/auth.php';
 
 Route::resource('users', UserController::class);
 Route::resource('doctors', DoctorController::class);
+Route::resource('specialities', SpecialityController::class);
 Route::resource('patients', PatientController::class);
 Route::resource('appointments', AppointmentController::class);
 Route::resource('permissions', PermissionController::class);
@@ -34,3 +36,4 @@ Route::resource('schedules', ScheduleController::class);
 Route::get('my-appointments', [AppointmentController::class, 'myAppointments'])->name('my-appointments')->middleware('auth');
 Route::put('/appointments/{id}/edit', [AppointmentController::class, 'editMyAppointment'])->name('editMyAppointment');
 Route::delete('/appointments/{id}', [AppointmentController::class, 'deleteMyAppointment'])->name('deleteMyAppointment');
+Route::get('choose-speciality', [SpecialityController::class, 'chooseSpeciality'])->name('specialities.choose');

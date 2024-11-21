@@ -26,7 +26,7 @@
                                                 <th class="border border-gray-300 px-4 py-2">#</th>
                                                 <th class="border border-gray-300 px-4 py-2">Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Email</th>
-                                                <th class="border border-gray-300 px-4 py-2">Department</th>
+                                                <th class="border border-gray-300 px-4 py-2">Speciality</th>
                                                 @canany(['edit doctors', 'delete doctors'])
                                                     <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
                                                 @endcanany
@@ -40,7 +40,7 @@
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $doctor->user->email }}
                                                     </td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $doctor->department }}
+                                                    <td class="border border-gray-300 px-4 py-2">{{ $doctor->speciality->name }}
                                                     </td>
 
                                                     @canany(['edit doctors', 'delete doctors'])

@@ -22,57 +22,57 @@
                                             <tr>
                                                 <th class="border border-gray-300 px-4 py-2">#</th>
                                                 <th class="border border-gray-300 px-4 py-2">Doctor Name</th>
-                                                <th class="border border-gray-300 px-4 py-2">Days Available</th>
+                                                <th class="border border-gray-300 px-4 py-2">Date</th>
                                                 <th class="border border-gray-300 px-4 py-2">Time</th>
+                                                <th class="border border-gray-300 px-4 py-2">Status</th>
                                                 <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($groupedSchedules as $doctorId => $schedules)
-                                                <tr class="even:bg-gray-100">
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $schedules->first()->doctor->user->name }}
-                                                    </td>
-                                                    <td class="border border-gray-300 px-4 py-2">
-                                                        @foreach ($schedules as $schedule)
-                                                            @if ($schedule->status == 'available')
-                                                                <!-- Display only available schedules -->
-                                                                {{ $schedule->day }},
-                                                            @endif
-                                                        @endforeach
-                                                    </td>
-                                                    <td class="border border-gray-300 px-4 py-2">
-                                                        {{ \Carbon\Carbon::parse($schedules->first()->start_time)->format('h:i A') }}
-                                                        -
-                                                        {{ \Carbon\Carbon::parse($schedules->first()->end_time)->format('h:i A') }}
-                                                    </td>
-                                                    <td class="border border-gray-300 px-4 py-2 text-center">
-                                                        <div class="flex justify-center gap-2">
-                                                            <!-- Edit Button -->
-                                                            <a href="{{ route('schedules.edit', $schedules->first()->id) }}"
-                                                                class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
-                                                                <i class="bi bi-pencil-square"></i> Edit
-                                                            </a>
+                                                @foreach ($schedules as $schedule)
+                                                    <tr class="even:bg-gray-100">
+                                                        <td class="border border-gray-300 px-4 py-2">
+                                                            {{ $loop->parent->iteration }}.{{ $loop->iteration }}
+                                                        </td>
+                                                        <td class="border border-gray-300 px-4 py-2">
+                                                            {{ $schedule->doctor->user->name }}
+                                                        </td>
+                                                        <td class="border border-gray-300 px-4 py-2">
+                                                            {{ \Carbon\Carbon::parse($schedule->date)->format('d-m-Y') }}
+                                                        </td>
+                                                        <td class="border border-gray-300 px-4 py-2">
+                                                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }}
+                                                            -
+                                                            {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
+                                                        </td>
+                                                        <td class="border border-gray-300 px-4 py-2">
+                                                            {{ ucfirst($schedule->status) }}
+                                                        </td>
+                                                        <td class="border border-gray-300 px-4 py-2 text-center">
+                                                            <div class="flex justify-center gap-2">
+                                                                <!-- Edit Button -->
+                                                                <a href="{{ route('schedules.edit', $schedule->id) }}"
+                                                                    class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
+                                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                                </a>
 
-                                                            <!-- Delete Button -->
-                                                            <form action="{{ route('schedules.destroy', $schedule->id) }}"
-                                                                method="POST" class="inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="text-red-500 hover:text-red-700 px-3 py-1 rounded-lg text-sm border border-red-500"
-                                                                    onclick="return confirm('Are you sure you want to delete this schedule?');">
-                                                                    <i class="bi bi-trash"></i> Delete
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                                <!-- Delete Button -->
+                                                                <form action="{{ route('schedules.destroy', $schedule->id) }}"
+                                                                    method="POST" class="inline">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="text-red-500 hover:text-red-700 px-3 py-1 rounded-lg text-sm border border-red-500"
+                                                                        onclick="return confirm('Are you sure you want to delete this schedule?');">
+                                                                        <i class="bi bi-trash"></i> Delete
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
                                             @endforeach
-
-
-
                                         </tbody>
                                     </table>
                                 </div>

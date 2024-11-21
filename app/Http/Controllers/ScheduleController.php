@@ -22,25 +22,24 @@ class ScheduleController extends Controller
         return view('schedules.index', compact('groupedSchedules', 'schedules'));
     }
 
-
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
         $doctors = Doctor::all(); // Fetch all doctors to assign schedules
-        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
-        return view('schedules.create', compact('doctors', 'days'));
+        return view('schedules.create', compact('doctors'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         // Validate the input
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
-            'schedules.*.day' => 'required|in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday',
+            'schedules.*.date' => 'required|date',
             'schedules.*.start_time' => 'required|date_format:H:i',
             'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
             'schedules.*.status' => 'required|in:available,booked,unavailable',
@@ -52,84 +51,69 @@ class ScheduleController extends Controller
         foreach ($request->schedules as $scheduleData) {
             Schedule::create([
                 'doctor_id' => $doctorId,
-                'day' => $scheduleData['day'],
+                'date' => $scheduleData['date'],
                 'start_time' => $scheduleData['start_time'],
                 'end_time' => $scheduleData['end_time'],
-                'status' => $scheduleData['status'], // Save the status for the specific day
+                'status' => $scheduleData['status'],
             ]);
         }
 
-        return redirect()->route('schedules.index')->with('success', 'Schedule saved successfully!');
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($doctorId, $id)
+    public function edit($id)
     {
-        // Find the doctor along with their schedules
-        $doctor = Doctor::with('schedules')->findOrFail($doctorId);
-        $schedule = Schedule::findOrFail($id); // Find the schedule by ID
+        // Find the schedule by ID and load the associated doctor and user relationships
+        $schedule = Schedule::with('doctor.user')->findOrFail($id);
 
-        // Pass both doctor and schedules to the view
+        // Retrieve the doctor from the schedule
+        $doctor = $schedule->doctor;
+
+        // Pass the doctor and the specific schedule to the view
         return view('schedules.edit', compact('doctor', 'schedule'));
     }
-
-
-
-
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $doctorId)
+    public function update(Request $request, $id)
     {
         // Validate the incoming data
         $request->validate([
-            'schedules.*.start_time' => 'required|date_format:H:i',
-            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
-            'schedules.*.status' => 'required|in:available,booked,unavailable',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'status' => 'required|in:available,booked,unavailable',
         ]);
 
-        $schedules = $request->input('schedules');
+        $schedule = Schedule::findOrFail($id);
 
-        foreach ($schedules as $scheduleId => $data) {
-            // Use `find` instead of `findOrFail` to avoid unnecessary exception throwing
-            $schedule = Schedule::find($scheduleId);
+        $schedule->update([
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'status' => $request->status,
+        ]);
 
-            if ($schedule && $schedule->doctor_id == $doctorId) {
-                $schedule->update([
-                    'start_time' => $data['start_time'],
-                    'end_time' => $data['end_time'],
-                    'status' => $data['status'],
-                ]);
-            }
-        }
-
-        return redirect()->route('schedules.index')->with('success', 'Doctor schedule updated successfully!');
+        return redirect()->route('schedules.index')->with('success', 'Schedule updated successfully!');
     }
-
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
+        // Find the schedule by ID
         $schedule = Schedule::findOrFail($id);
+
+        // Delete the schedule
         $schedule->delete();
 
-        return redirect()->route('schedules.index')->with('success', 'Schedule deleted successfully!');
+        // Redirect with a success message
+        return redirect()->route('schedules.index')
+            ->with('success', 'Schedule deleted successfully!');
     }
-
-
 }
