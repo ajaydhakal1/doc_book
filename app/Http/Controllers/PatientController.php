@@ -19,7 +19,6 @@ class PatientController extends Controller implements HasMiddleware
         return [
             new Middleware('permission:view patients', only: ['index']),
             new Middleware('permission:edit patients', only: ['edit']),
-            new Middleware('permission:create patients', only: ['create']),
             new Middleware('permission:delete patients', only: ['destroy']),
         ];
     }

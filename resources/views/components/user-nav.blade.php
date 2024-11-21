@@ -34,6 +34,12 @@
                         class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                         Doctors
                     </a>
+                    @can('view patients')
+                        <a href="{{ route('patients.index') }}"
+                            class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                            Patients
+                        </a>
+                    @endcan
                 </div>
 
                 <!-- Right Section -->
@@ -71,13 +77,13 @@
                             </div>
                         </div>
                     @else
-                    <h3 class="px-3 text-white">Welcome, {{auth()->user()->name}}</h3>
+                        <h3 class="px-3 text-white">Welcome, {{auth()->user()->name}}</h3>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="{{ route('logout') }}"
                                 class="text-gray-800 dark:text-gray-100 px-3 py-2 rounded bg-red-500 hover:text-white dark:bg-red-500 :hover:text-white"
                                 onclick="event.preventDefault();
-                                this.closest('form').submit();">
+                                    this.closest('form').submit();">
                                 Logout
                             </a>
                         </form>

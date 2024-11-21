@@ -34,6 +34,26 @@
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
+                <div>
+                    <label for="status" class="block text-lg font-medium mb-2">Status</label>
+                    <select id="status" name="status"
+                        class="w-full md:w-1/2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm rounded-lg focus:ring focus:ring-blue-500 focus:outline-none">
+                        <option value="" disabled selected>Select a status</option>
+                        @forelse ($doctor->schedules as $schedule)
+                            <option value="{{ $schedule->status }}">
+                                {{ $schedule->status }}
+                            </option>
+                        @empty
+                            <option value="" disabled>No statuses available</option>
+                        @endforelse
+                    </select>
+                    @error('status')
+                        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+
+
+
                 <!-- Submit Button -->
                 <div class="text-center">
                     <button type="submit"

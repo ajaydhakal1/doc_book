@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
+
 class AppointmentController extends Controller implements HasMiddleware
 {
 
@@ -44,8 +45,9 @@ class AppointmentController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        $doctors = Doctor::all(); // Fetch all doctors
-        return view('appointments.create', compact('doctors'));
+        $doctors = Doctor::all();
+        $patients = Patient::all(); // Fetch all doctors
+        return view('appointments.create', compact('doctors', 'patients'));
     }
 
 
@@ -58,30 +60,55 @@ class AppointmentController extends Controller implements HasMiddleware
         $request->validate([
             'disease' => 'required|string',
             'doctor_id' => 'required|exists:doctors,id',
+            'patient_id' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (Auth::user()->hasRole('Admin') && empty($value)) {
+                        $fail('Patient is required for Admin');
+                    }
+                }
+            ],
             'date' => 'required|date',
             'time' => 'required',
         ]);
 
         // Assuming the patient_id is related to the authenticated user
+
         $userId = Auth::user()->id;
         $patient = Patient::where('user_id', $userId)->first();
         $patientId = $patient->id;
-        // Create new appointment
-        $appointment = new Appointment();
 
+        if (Auth::user()->hasRole('Patient')) {
+            $appointment = new Appointment();
+            $appointment->patient_id = $patientId;  // Assign the patient's ID
+            $appointment->doctor_id = $request->doctor_id;
+            $appointment->disease = $request->disease;
+            $appointment->category = $request->category;  // Optional
+            $appointment->date = $request->date;
+            $appointment->time = $request->time;
+            $appointment->status = "booked";
+            // Save the appointment
+            $appointment->save();
 
-        $appointment->patient_id = $patientId;  // Assign the patient's ID
-        $appointment->doctor_id = $request->doctor_id;
-        $appointment->disease = $request->disease;
-        $appointment->category = $request->category;  // Optional
-        $appointment->date = $request->date;
-        $appointment->time = $request->time;
-        $appointment->status = "booked";
-        // Save the appointment
-        $appointment->save();
+            // Redirect to the appointments index with a success message
+            return redirect()->route('home')->with('success', 'Appointment created successfully!');
+        } else if (Auth::user()->hasRole('Admin')) {
+            $appointment = new Appointment();
 
-        // Redirect to the appointments index with a success message
-        return redirect()->route('appointments.index')->with('success', 'Appointment created successfully!');
+            $appointment->patient_id = $request->patient_id;
+            $appointment->doctor_id = $request->doctor_id;
+            $appointment->disease = $request->disease;
+            $appointment->category = $request->category;  // Optional
+            $appointment->date = $request->date;
+            $appointment->time = $request->time;
+            $appointment->status = "booked";
+            // Save the appointment
+            $appointment->save();
+
+            // Redirect to the appointments index with a success message
+            return redirect()->route('appointments.index')->with('success', 'Appointment created successfully!');
+        }
+
     }
 
 
@@ -134,20 +161,32 @@ class AppointmentController extends Controller implements HasMiddleware
 
     public function myAppointments()
     {
-        // Get the logged-in user's associated patient ID
-        $patient = Patient::where('user_id', Auth::id())->first();
+        if (Auth::user()->hasRole('Patient')) {
+            // Get the logged-in user's associated patient ID
+            $patient = Patient::where('user_id', Auth::id())->first();
 
-        if (!$patient) {
-            // Handle the case where the user is not a patient
-            return redirect()->route('home')->with('error', 'You do not have any appointments.');
+            if (!$patient) {
+                // Handle the case where the user is not a patient
+                return redirect()->route('home')->with('error', 'You do not have any appointments.');
+            }
+
+            // Fetch appointments for the logged-in patient
+            $appointments = Appointment::where('patient_id', $patient->id)
+                ->orderBy('date', 'asc') // Ensure column names match your table schema
+                ->get();
+
+            return view('appointments.my-appointments', compact('appointments'));
+        } elseif (Auth::user()->hasRole('Doctor')) {
+            $doctor = Doctor::where('user_id', Auth::id())->first();
+
+            if (!$doctor) {
+                // Handle the case where the user is not a patient
+                return redirect()->route('home')->with('error', 'You do not have any appointments.');
+            }
+
+            $appointments = Appointment::where('doctor_id', $doctor->id)->orderBy('date', 'asc')->get();
+            return view('appointments.my-appointments', compact('appointments'));
         }
-
-        // Fetch appointments for the logged-in patient
-        $appointments = Appointment::where('patient_id', $patient->id)
-            ->orderBy('date', 'asc') // Ensure column names match your table schema
-            ->get();
-
-        return view('appointments.my-appointments', compact('appointments'));
     }
 
     public function editMyAppointment($id)

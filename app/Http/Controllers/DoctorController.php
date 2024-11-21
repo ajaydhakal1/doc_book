@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -18,7 +19,6 @@ class DoctorController extends Controller implements HasMiddleware
         return [
             new Middleware('permission:view doctors', only: ['index']),
             new Middleware('permission:edit doctors', only: ['edit']),
-            new Middleware('permission:create doctors', only: ['create']),
             new Middleware('permission:delete doctors', only: ['destroy']),
         ];
     }
@@ -28,7 +28,7 @@ class DoctorController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $doctors = Doctor::all();
+        $doctors = Doctor::with('schedules')->get(); // Eager load schedules
         return view('doctors.index', compact('doctors'));
     }
 
@@ -43,7 +43,6 @@ class DoctorController extends Controller implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      */
-
     public function store(Request $request)
     {
         // Validate the incoming request data
@@ -59,31 +58,35 @@ class DoctorController extends Controller implements HasMiddleware
         $user = new User();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
-        $user->password = bcrypt($request->input('password')); // Make sure to hash the password
+        $user->password = bcrypt($request->input('password'));
         $user->save();
 
         // Assign the "doctor" role to the user
-        $user->assignRole('Doctor'); // Make sure the "doctor" role exists
+        $user->assignRole('Doctor');
 
         // Create a new doctor record
         $doctor = new Doctor();
-        $doctor->phone = $request->phone;
-        $doctor->department = $request->department;
+        $doctor->phone = $request->input('phone');
+        $doctor->department = $request->input('department');
         $user->doctor()->save($doctor);
 
-        // Redirect with success message
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully');
     }
-
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        $doctor = Doctor::find($id);
+        $doctor = Doctor::with('schedules')->find($id);
+
+        if (!$doctor) {
+            return redirect()->route('doctors.index')->with('error', 'Doctor not found');
+        }
+
         return view('doctors.edit', compact('doctor'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -94,12 +97,13 @@ class DoctorController extends Controller implements HasMiddleware
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required',
+            'phone' => 'required|string',
             'department' => 'required|string',
         ]);
 
         // Find the User
         $user = User::find($id);
+
         if (!$user) {
             return back()->with('error', 'User not found');
         }
@@ -110,22 +114,22 @@ class DoctorController extends Controller implements HasMiddleware
         $user->save();
 
         // Check if the User has an associated Doctor record
-        $doctor = $user->doctor; // Assuming `doctor` is a relationship on the `User` model
+        $doctor = $user->doctor;
 
         if (!$doctor) {
-            // If no doctor exists, create a new instance
-            $doctor = new Doctor();
-            $doctor->user_id = $user->id; // Ensure the association
+            return back()->with('error', 'Doctor record not found');
         }
 
         // Update Doctor attributes
         $doctor->phone = $request->input('phone');
         $doctor->department = $request->input('department');
+
+        $schedule = Schedule::find('doctor_id', $doctor->id);
+        $schedule->status = $request->status;
         $doctor->save();
 
         return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully');
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -133,11 +137,14 @@ class DoctorController extends Controller implements HasMiddleware
     public function destroy(string $id)
     {
         $user = User::find($id);
-        $user->delete();
 
-        if ($user) {
-            return back()->with('success', 'Doctor deleted successfully');
+        if (!$user) {
+            return back()->with('error', 'Doctor not found');
         }
-        return back()->with('error', 'Doctor not found');
+
+        $user->doctor()->delete(); // Delete the associated doctor record
+        $user->delete(); // Delete the user record
+
+        return back()->with('success', 'Doctor deleted successfully');
     }
 }

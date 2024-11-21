@@ -13,6 +13,8 @@
                     </p>
                 </div>
 
+                <x-message></x-message>
+
                 <!-- Action Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Book Appointment Section -->
@@ -21,7 +23,8 @@
                         <p class="text-gray-600 mb-6">
                             Choose a doctor and a convenient time for your appointment.
                         </p>
-                        <a href="{{route('appointments.create')}}" class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+                        <a href="{{route('appointments.create')}}"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
                             Book Now
                         </a>
                     </div>
@@ -32,7 +35,8 @@
                         <p class="text-gray-600 mb-6">
                             View or manage your upcoming appointments.
                         </p>
-                        <a href="{{route('my-appointments')}}" class="px-6 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700">
+                        <a href="{{route('my-appointments')}}"
+                            class="px-6 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700">
                             View Appointments
                         </a>
                     </div>

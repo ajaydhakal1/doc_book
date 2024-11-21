@@ -2,7 +2,8 @@
     <div class="py-12">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h1 class="text-center text-xl font-bold mb-6">Create Appointment</h1>
-            <form action="{{ route('appointments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="{{ route('appointments.store') }}" method="POST" enctype="multipart/form-data"
+                class="space-y-4">
                 @csrf
                 <!-- Disease Field -->
                 <div>
@@ -42,6 +43,27 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                @if (Auth::user()->hasRole('Admin'))
+                    <div>
+                        <label for="patient_id" class="block text-sm font-medium text-gray-700">Patient</label>
+                        <select id="patient_id" name="patient_id"
+                            class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" disabled {{ old('patient_id', isset($appointment) ? $appointment->patient_id : '') == '' ? 'selected' : '' }}>
+                                Select a patient
+                            </option>
+                            @foreach($patients as $patient)
+                                <option value="{{ $patient->id }}" {{ old('patient_id', isset($appointment) ? $appointment->patient_id : '') == $patient->id ? 'selected' : '' }}>
+                                    {{ $patient->user->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('patient_id')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+
 
                 <!-- Date and Time Field -->
                 <div>

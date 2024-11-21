@@ -8,10 +8,10 @@
                             <div class="bg-blue-500 text-white p-4 flex justify-between items-center rounded-t-lg">
                                 <h1 class="text-lg font-bold">Doctors List</h1>
                                 @can('create doctors')
-                                <a href="{{ route('doctors.create') }}"
-                                    class="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
-                                    <i class="bi bi-plus-circle"></i> Add Doctor
-                                </a>
+                                    <a href="{{ route('doctors.create') }}"
+                                        class="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
+                                        <i class="bi bi-plus-circle"></i> Add Doctor
+                                    </a>
                                 @endcan
                             </div>
 
@@ -42,6 +42,7 @@
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $doctor->department }}
                                                     </td>
+
                                                     @canany(['edit doctors', 'delete doctors'])
                                                         <td class="border border-gray-300 px-4 py-2 text-center">
                                                             <div class="flex justify-center gap-2">

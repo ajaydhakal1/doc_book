@@ -7,10 +7,12 @@
                         <div class="bg-white border border-gray-200 rounded-lg shadow-lg">
                             <div class="bg-blue-500 text-white p-4 flex justify-between items-center rounded-t-lg">
                                 <h1 class="text-lg font-bold">Patients List</h1>
-                                <a href="{{ route('patients.create') }}"
-                                    class="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
-                                    <i class="bi bi-plus-circle"></i> Add patient
-                                </a>
+                                @can('create patients')
+                                    <a href="{{ route('patients.create') }}"
+                                        class="bg-white text-blue-500 hover:text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
+                                        <i class="bi bi-plus-circle"></i> Add patient
+                                    </a>
+                                @endcan
                             </div>
 
                             <x-message></x-message>
@@ -24,7 +26,9 @@
                                                 <th class="border border-gray-300 px-4 py-2">Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Email</th>
                                                 <th class="border border-gray-300 px-4 py-2">Created At</th>
+                                                @canany(['edit doctors', 'delete doctors'])
                                                 <th class="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                                                @endcanany
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -38,23 +42,30 @@
                                                     <td class="border border-gray-300 px-4 py-2">
                                                         {{ $patient->created_at->format('d M Y') }}
                                                     </td>
-                                                    <td class="border border-gray-300 px-4 py-2 text-center">
-                                                        <div class="flex justify-center gap-2">
-                                                            <a href="{{ route('patients.edit', $patient->id) }}"
-                                                                class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
-                                                                <i class="bi bi-pencil-square"></i> Edit
-                                                            </a>
-                                                            <form action="{{ route('patients.destroy', $patient->id) }}"
-                                                                method="POST" class="inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="text-red-500 hover:text-red-700 px-3 py-1 rounded-lg text-sm border border-red-500">
-                                                                    <i class="bi bi-trash"></i> Delete
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
+                                                    @canany(['edit doctors', 'delete doctors'])
+                                                        <td class="border border-gray-300 px-4 py-2 text-center">
+                                                            <div class="flex justify-center gap-2">
+                                                                @can('edit patients')
+                                                                    <a href="{{ route('patients.edit', $patient->id) }}"
+                                                                        class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
+                                                                        <i class="bi bi-pencil-square"></i> Edit
+                                                                    </a>
+                                                                @endcan
+
+                                                                @can('delete patients')
+                                                                    <form action="{{ route('patients.destroy', $patient->id) }}"
+                                                                        method="POST" class="inline">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="text-red-500 hover:text-red-700 px-3 py-1 rounded-lg text-sm border border-red-500">
+                                                                            <i class="bi bi-trash"></i> Delete
+                                                                        </button>
+                                                                    </form>
+                                                                @endcan
+                                                            </div>
+                                                        </td>
+                                                    @endcanany
                                                 </tr>
                                             @empty
                                                 <tr>
