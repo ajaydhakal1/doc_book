@@ -1,4 +1,5 @@
 <x-app-layout>
+    <x-message></x-message>
     <div class="py-12">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h1 class="text-center text-xl font-bold mb-6">Create Appointment</h1>
@@ -16,33 +17,29 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700">Disease Category
-                        (Optional)</label>
-                    <input type="text" id="category" name="category"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter disease category (if you know)" value="{{ old('category') }}">
-                    @error('category')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 <!-- Doctor Selection -->
                 <div>
                     <label for="doctor_id" class="block text-sm font-medium text-gray-700">Doctor</label>
                     <select id="doctor_id" name="doctor_id"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="" disabled selected>Select a doctor</option>
-                        @foreach($doctors as $doctor)
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2">
+                        <option value="" disabled {{ old('doctor_id', isset($appointment) ? $appointment->doctor_id : '') == '' ? 'selected' : '' }}>
+                            Select a doctor
+                        </option>
+                        @forelse ($doctors as $doctor)
                             <option value="{{ $doctor->id }}" @if(old('doctor_id') == $doctor->id) selected @endif>
                                 {{ $doctor->user->name }}
                             </option>
-                        @endforeach
+                        @empty
+                            <option value="">No available doctors found</option>
+                        @endforelse
                     </select>
                     @error('doctor_id')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+
+
 
                 @if (Auth::user()->hasRole('Admin'))
                     <div>
@@ -76,14 +73,24 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label for="time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                    <input type="time" min="{{Carbon\Carbon::now()}}" name="time"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('time')
+                <div class="mb-4">
+                    <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
+                    <input type="time" id="start_time" min="{{ Carbon\Carbon::now() }}" name="start_time"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                    @error('start_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <div class="mb-4">
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
+                    <input type="time" id="end_time" min="{{ Carbon\Carbon::now() }}" name="end_time"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                    @error('end_time')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
 
                 <!-- Submit Button -->
                 <button type="submit"

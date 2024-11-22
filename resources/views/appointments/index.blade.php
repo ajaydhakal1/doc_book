@@ -24,7 +24,6 @@
                                                 <th class="border border-gray-300 px-4 py-2">Patient Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Doctor Name</th>
                                                 <th class="border border-gray-300 px-4 py-2">Disease</th>
-                                                <th class="border border-gray-300 px-4 py-2">Category</th>
                                                 <th class="border border-gray-300 px-4 py-2">Appointment Date</th>
                                                 <th class="border border-gray-300 px-4 py-2">Time</th>
                                                 <th class="border border-gray-300 px-4 py-2">Status</th>
@@ -36,19 +35,23 @@
                                                 <tr class="even:bg-gray-100">
                                                     <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->patient->user->name }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->doctor->user->name }}</td>
-                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->disease }}
+                                                        {{ $appointment->patient->user->name }}
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->category }}</td>
+                                                        {{ $appointment->doctor->user->name }}
+                                                    </td>
+                                                    <td class="border border-gray-300 px-4 py-2">{{ $appointment->disease }}
+                                                    </td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $appointment->date }}
                                                     </td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->time }}</td>
+                                                        {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}
+                                                        -
+                                                        {{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}
+                                                    </td>
                                                     <td class="border border-gray-300 px-4 py-2">
-                                                        {{ $appointment->status }}</td>
+                                                        {{ $appointment->status }}
+                                                    </td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
                                                         <div class="flex justify-center gap-2">
                                                             <a href="{{ route('appointments.edit', $appointment->id) }}"

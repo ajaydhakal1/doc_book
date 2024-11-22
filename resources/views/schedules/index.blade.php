@@ -47,7 +47,7 @@
                                                             {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
                                                         </td>
                                                         <td class="border border-gray-300 px-4 py-2">
-                                                            {{ ucfirst($schedule->status) }}
+                                                            {{ ($schedule->status) }}
                                                         </td>
                                                         <td class="border border-gray-300 px-4 py-2 text-center">
                                                             <div class="flex justify-center gap-2">

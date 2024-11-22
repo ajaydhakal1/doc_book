@@ -23,7 +23,7 @@
                         <p class="text-gray-600 mb-6">
                             Choose a doctor and a convenient time for your appointment.
                         </p>
-                        <a href="{{route('appointments.create')}}"
+                        <a href="{{route('specialities.choose')}}"
                             class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
                             Book Now
                         </a>

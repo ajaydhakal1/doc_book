@@ -79,26 +79,29 @@ class ScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $doctorId)
     {
-        // Validate the incoming data
+        // Validate the incoming data for all schedules
         $request->validate([
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'status' => 'required|in:available,booked,unavailable',
+            'schedules.*.date' => 'required|date',
+            'schedules.*.start_time' => 'required|date_format:H:i',
+            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
+            'schedules.*.status' => 'required|in:available,booked,unavailable',
         ]);
 
-        $schedule = Schedule::findOrFail($id);
+        // Loop through each schedule and update it
+        foreach ($request->schedules as $scheduleId => $scheduleData) {
+            $schedule = Schedule::findOrFail($scheduleId);
 
-        $schedule->update([
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'status' => $request->status,
-        ]);
+            $schedule->update([
+                'date' => $scheduleData['date'],
+                'start_time' => $scheduleData['start_time'],
+                'end_time' => $scheduleData['end_time'],
+                'status' => $scheduleData['status'],
+            ]);
+        }
 
-        return redirect()->route('schedules.index')->with('success', 'Schedule updated successfully!');
+        return redirect()->route('schedules.index')->with('success', 'Schedules updated successfully!');
     }
 
     /**

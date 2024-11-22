@@ -1,4 +1,5 @@
 <x-app-layout>
+    <x-message></x-message>
     <div class="py-12">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h1 class="text-center text-xl font-bold mb-6">Edit Appointment</h1>
@@ -34,19 +35,7 @@
                     @enderror
                 </div>
 
-                <!-- Category Field -->
-                <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                    <input type="text" id="category" name="category"
-                        value="{{ old('category', $appointment->category) }}"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter appointment category">
-                    @error('category')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Appointment Date and Time -->
+                <!-- Appointment Date -->
                 <div>
                     <label for="date" class="block text-sm font-medium text-gray-700">Appointment Date</label>
                     <input type="date" id="date" name="date" value="{{ old('date', $appointment->date) }}"
@@ -56,11 +45,24 @@
                     @enderror
                 </div>
 
+                <!-- Start Time -->
                 <div>
-                    <label for="time" class="block text-sm font-medium text-gray-700">Appointment Time</label>
-                    <input type="time" id="time" name="time" value="{{ old('time', $appointment->time) }}"
+                    <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
+                    <input type="time" id="start_time" name="start_time"
+                        value="{{ old('start_time', $appointment->start_time) }}"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                    @error('time')
+                    @error('start_time')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- End Time -->
+                <div>
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
+                    <input type="time" id="end_time" name="end_time"
+                        value="{{ old('end_time', $appointment->end_time) }}"
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    @error('end_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>

@@ -43,6 +43,7 @@
                     <label for="speciality_id" class="block text-sm font-medium text-gray-700">Speciality</label>
                     <select id="speciality_id" name="speciality_id"
                         class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Speciality</option>
                         @foreach ($specialities as $speciality)
                             <option value="{{ $speciality->id }}">{{ $speciality->name }}</option>
                         @endforeach

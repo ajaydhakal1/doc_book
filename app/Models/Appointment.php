@@ -10,9 +10,9 @@ class Appointment extends Model
         'patient_id',  // Corrected to use patient_id
         'doctor_id',
         'disease',
-        'category',
         'date',
-        'time',
+        'start_time',
+        'end_time',
         'status'
     ];
 

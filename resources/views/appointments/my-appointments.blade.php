@@ -20,7 +20,7 @@
                                 <th class="px-6 py-4 text-left">Date</th>
                                 <th class="px-6 py-4 text-left">Time</th>
                                 <th class="px-6 py-4 text-left">Status</th>
-                                @canany('edit own appointment', 'delete own appointment')
+                                @canany(['edit own appointment', 'delete own appointment'])
                                     <th class="px-6 py-4 text-left">Actions</th>
                                 @endcanany
                             </tr>
@@ -44,12 +44,13 @@
                                         {{ $appointment->date }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->time)->format('h:i A') }}
+                                        {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->start_time)->format('h:i A') }}
+                                        - {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->end_time)->format('h:i A') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <span
                                             class="px-2 py-1 rounded-full text-xs font-semibold
-                                                                                                                                                {{ $appointment->status == 'booked' ? 'bg-green-100 text-green-800' : ($appointment->status == 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                            {{ $appointment->status == 'booked' ? 'bg-green-100 text-green-800' : ($appointment->status == 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
                                             {{ ucfirst($appointment->status ?? 'unknown') }}
                                         </span>
                                     </td>
