@@ -55,7 +55,8 @@ class SpecialityController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $speciality = Speciality::find($id);
+        return view('specialities.edit', compact('speciality'));
     }
 
     /**
@@ -63,7 +64,14 @@ class SpecialityController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $speciality = Speciality::find($id);
+        $request->validate
+        ([
+                'name' => 'required|string',
+            ]);
+        $speciality->name = $request->name;
+        $speciality->save();
+        return redirect()->route('specialities.index')->with('success', 'Specialty updated successfully!');
     }
 
     /**
@@ -74,8 +82,22 @@ class SpecialityController extends Controller
         //
     }
 
-    public function chooseSpeciality(){
+    public function chooseSpeciality()
+    {
         $specialities = Speciality::all();
         return view('specialities.choose', compact('specialities'));
     }
+
+    public function doctorsBySpeciality($id)
+    {
+        // Find the speciality by its ID
+        $speciality = Speciality::findOrFail($id);
+
+        // Retrieve doctors associated with the speciality
+        $doctors = Doctor::where('speciality_id', $speciality->id)->get();
+
+        // Return the view with doctors and speciality
+        return view('specialities.doctors', compact('doctors', 'speciality'));
+    }
+
 }

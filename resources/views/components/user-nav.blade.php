@@ -26,14 +26,16 @@
                         class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                         Home
                     </a>
-                    <a href="{{ route('dashboard') }}"
-                        class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
-                        Dashboard
-                    </a>
                     <a href="{{ route('doctors.index') }}"
                         class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                         Doctors
                     </a>
+                    @if (Auth::user())
+                        <a href="{{ route('dashboard') }}"
+                            class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                            Dashboard
+                        </a>
+                    @endif
                     @can('view patients')
                         <a href="{{ route('patients.index') }}"
                             class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
@@ -83,7 +85,7 @@
                             <a href="{{ route('logout') }}"
                                 class="text-gray-800 dark:text-gray-100 px-3 py-2 rounded bg-red-500 hover:text-white dark:bg-red-500 :hover:text-white"
                                 onclick="event.preventDefault();
-                                    this.closest('form').submit();">
+                                            this.closest('form').submit();">
                                 Logout
                             </a>
                         </form>

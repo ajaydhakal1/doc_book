@@ -36,4 +36,5 @@ Route::resource('schedules', ScheduleController::class);
 Route::get('my-appointments', [AppointmentController::class, 'myAppointments'])->name('my-appointments')->middleware('auth');
 Route::put('/appointments/{id}/edit', [AppointmentController::class, 'editMyAppointment'])->name('editMyAppointment');
 Route::delete('/appointments/{id}', [AppointmentController::class, 'deleteMyAppointment'])->name('deleteMyAppointment');
+Route::get('/specialities/{id}/doctors', [SpecialityController::class, 'doctorsBySpeciality'])->name('specialities.doctors');
 Route::get('choose-speciality', [SpecialityController::class, 'chooseSpeciality'])->name('specialities.choose');

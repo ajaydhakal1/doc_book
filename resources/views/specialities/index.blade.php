@@ -31,12 +31,28 @@
                                                     <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
                                                     <td class="border border-gray-300 px-4 py-2">{{ $specialty->name }}</td>
                                                     <td class="border border-gray-300 px-4 py-2 text-center">
-                                                        <div class="flex justify-center gap-2">
+                                                        <div class="flex justify-center gap-4">
                                                             <!-- View Doctor List -->
-                                                            <a href="{{ route('doctors.index', ['specialty' => $specialty]) }}"
+                                                            <a href="{{route('doctors.speciality', $specialty->id)}}"
                                                                 class="text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg text-sm border border-blue-500">
                                                                 <i class="bi bi-eye"></i> View Doctors
                                                             </a>
+                                                            <a href="{{ route('specialities.edit', $specialty->id) }}">
+                                                                <button
+                                                                    class="py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition">
+                                                                    Edit
+                                                                </button>
+                                                            </a>
+                                                            <form
+                                                                action="{{ route('specialities.destroy', $specialty->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
+                                                                    Delete
+                                                                </button>
+                                                            </form>
                                                         </div>
                                                     </td>
                                                 </tr>
