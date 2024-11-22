@@ -164,4 +164,4 @@ The database schema is designed to support the core features of the appointment 
 | `review`     | TEXT                                | Optional review provided by the patient               |
 | `status`     | ENUM(booked, incomplete, completed) | Store the status of the appointment.                  |
 
-## `Full documentation coming soon...`
+## Full documentation coming soon...
