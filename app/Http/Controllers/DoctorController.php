@@ -57,7 +57,7 @@ class DoctorController extends Controller implements HasMiddleware
         ]);
 
         $user->assignRole('Doctor');
-
+        
         // Create the associated doctor record
         Doctor::create([
             'user_id' => $user->id,

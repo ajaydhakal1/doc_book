@@ -37,7 +37,14 @@ class PatientController extends Controller implements HasMiddleware
 
     public function create()
     {
-        return view('patients.create'); // Corrected to the 'create' view, not 'index'
+        $genders = [
+            'male' => 'Male',
+            'female' => 'Female',
+            'other' => 'Other',
+        ];
+
+        // Pass $genders to the view.
+        return view('patients.create', compact('genders'));
     }
 
     /**
@@ -90,7 +97,16 @@ class PatientController extends Controller implements HasMiddleware
     public function edit(string $id)
     {
         $patient = Patient::find($id);
-        return view('patients.edit', compact('patient'));
+        // In your controller or a service, define the gender options:
+        $genders = [
+            'male' => 'Male',
+            'female' => 'Female',
+            'other' => 'Other',
+        ];
+
+        // Pass $genders to the view.
+        return view('patients.edit', compact('patient', 'genders'));
+
     }
 
     /**
@@ -148,10 +164,10 @@ class PatientController extends Controller implements HasMiddleware
      */
     public function destroy(string $id)
     {
-        $user = User::find($id);
-        $user->delete();
+        $patient = Patient::find($id);
+        $patient->delete();
 
-        if ($user) {
+        if ($patient) {
             return back()->with('success', 'Patient deleted successfully');
         }
         return back()->with('error', 'Patient not found');

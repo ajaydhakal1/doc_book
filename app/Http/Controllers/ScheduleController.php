@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class ScheduleController extends Controller
         // Validate the input
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
+            'appointment_id' => 'required|exists:appointments,id', // Ensure appointment_id exists
             'schedules.*.date' => 'required|date',
             'schedules.*.start_time' => 'required|date_format:H:i',
             'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
@@ -47,10 +49,17 @@ class ScheduleController extends Controller
 
         $doctorId = $request->doctor_id;
 
-        // Save the schedules
+        // Iterate through the schedules and create each one
         foreach ($request->schedules as $scheduleData) {
+            // Check if the appointment_id exists
+            if (!Appointment::find($scheduleData['appointment_id'])) {
+                return redirect()->back()->with('error', 'Appointment not found.');
+            }
+
+            // Create the schedule record
             Schedule::create([
                 'doctor_id' => $doctorId,
+                'appointment_id' => $scheduleData['appointment_id'],
                 'date' => $scheduleData['date'],
                 'start_time' => $scheduleData['start_time'],
                 'end_time' => $scheduleData['end_time'],
@@ -60,6 +69,7 @@ class ScheduleController extends Controller
 
         return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -112,11 +122,18 @@ class ScheduleController extends Controller
         // Find the schedule by ID
         $schedule = Schedule::findOrFail($id);
 
-        // Delete the schedule
-        $schedule->delete();
-
-        // Redirect with a success message
-        return redirect()->route('schedules.index')
-            ->with('success', 'Schedule deleted successfully!');
+        // Check if the schedule has an associated appointment
+        if ($schedule->appointment) {
+            // Delete the associated appointment
+            $schedule->appointment->delete();
+        } else {
+            // Handle the case where the schedule doesn't have an associated appointment
+            $schedule->delete();
+            // Redirect with a success message
+            return redirect()->route('schedules.index')
+                ->with('success', 'Schedule deleted successfully!');
+        }
     }
+
+
 }

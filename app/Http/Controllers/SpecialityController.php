@@ -5,9 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Speciality;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class SpecialityController extends Controller
+class SpecialityController extends Controller implements HasMiddleware
 {
+
+    public static function middleware()
+    {
+        return [
+            new Middleware('permission:view specialities', only: ['index']),
+            new Middleware('permission:create specialities', only: ['create']),
+            new Middleware('permission:edit specialities', only: ['edit']),
+            new Middleware('permission:delete specialities', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -79,7 +92,9 @@ class SpecialityController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $specialty = Speciality::find($id);
+        $specialty->delete();
+        return redirect()->route('specialities.index')->with('success', 'Specialty deleted successfully!');
     }
 
     public function chooseSpeciality()

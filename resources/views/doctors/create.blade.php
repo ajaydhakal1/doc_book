@@ -1,91 +1,95 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h1 class="text-center text-xl font-bold mb-6">Create Doctor</h1>
-            <form action="{{ route('doctors.store') }}" method="post" class="space-y-4">
-                @csrf
-
-                <!-- Name Field -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="name" name="name"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your name">
-                    @error('name')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+    <div class="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 py-16">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-center text-gray-900">Create New Doctor</h1>
+                    <p class="mt-2 text-center text-gray-600">Add a new doctor to the system</p>
                 </div>
 
-                <!-- Email Field -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" name="email"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your email">
-                    @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                <form action="{{ route('doctors.store') }}" method="post" class="space-y-6">
+                    @csrf
 
-                <!-- Phone Field -->
-                <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" id="phone" name="phone"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your phone number">
-                    @error('phone')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- Name Field -->
+                    <div class="space-y-2">
+                        <label for="name" class="text-sm font-semibold text-gray-700">Full Name</label>
+                        <input type="text" name="name" id="name"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="John Doe">
+                        @error('name')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- Speciality Field -->
-                <div>
-                    <label for="speciality_id" class="block text-sm font-medium text-gray-700">Speciality</label>
-                    <select id="speciality_id" name="speciality_id"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Speciality</option>
-                        @foreach ($specialities as $speciality)
-                            <option value="{{ $speciality->id }}">{{ $speciality->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('speciality_id')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- Email Field -->
+                    <div class="space-y-2">
+                        <label for="email" class="text-sm font-semibold text-gray-700">Email Address</label>
+                        <input type="email" name="email" id="email"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="john@example.com">
+                        @error('email')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
+                    <div class="space-y-2">
+                        <label for="phone" class="text-sm font-semibold text-gray-700">Phone</label>
+                        <input type="phone" name="phone" id="phone"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="john@example.com">
+                        @error('phone')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
+                    <!-- Speciality Selection -->
+                    <div class="space-y-2">
+                        <label for="speciality_id" class="text-sm font-semibold text-gray-700">Speciality</label>
+                        <select id="speciality_id" name="speciality_id"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200">
+                            <option value="" disabled selected>Select a speciality</option>
+                            @foreach ($specialities as $speciality)
+                                <option value="{{ $speciality->id }}">{{ $speciality->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('speciality_id')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- Password Field -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your password">
-                    @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- Password Field -->
+                    <div class="space-y-2">
+                        <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
+                        <input type="password" name="password" id="password"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="••••••••">
+                        @error('password')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- Confirm Password Field -->
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm
-                        Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Confirm your password">
-                    @error('password_confirmation')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <!-- Confirm Password Field -->
+                    <div class="space-y-2">
+                        <label for="password_confirmation" class="text-sm font-semibold text-gray-700">Confirm
+                            Password</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="••••••••">
+                        @error('password_confirmation')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                <!-- Submit Button -->
-                <div>
-                    <button type="submit"
-                        class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300">
-                        Add
-                    </button>
-                </div>
-            </form>
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Create
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

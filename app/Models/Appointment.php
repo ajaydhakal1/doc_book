@@ -9,10 +9,8 @@ class Appointment extends Model
     protected $fillable = [
         'patient_id',  // Corrected to use patient_id
         'doctor_id',
+        'schedule_id',
         'disease',
-        'date',
-        'start_time',
-        'end_time',
         'status'
     ];
 
@@ -27,4 +25,10 @@ class Appointment extends Model
     {
         return $this->belongsTo(Doctor::class, 'doctor_id');  // 'doctor_id' is the foreign key
     }
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class, 'schedule_id');
+    }
+
 }

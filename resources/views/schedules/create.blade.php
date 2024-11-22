@@ -64,7 +64,6 @@
                                 <label for="status_1" class="block font-medium text-gray-700">Status</label>
                                 <select name="schedules[0][status]" id="status_1"
                                     class="w-full mt-1 border-gray-300 rounded-lg" required>
-                                    <option value="available" {{ old('schedules.0.status') == 'available' ? 'selected' : '' }}>Available</option>
                                     <option value="booked" {{ old('schedules.0.status') == 'booked' ? 'selected' : '' }}>
                                         Booked</option>
                                     <option value="unavailable" {{ old('schedules.0.status') == 'unavailable' ? 'selected' : '' }}>Unavailable</option>
