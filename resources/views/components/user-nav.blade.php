@@ -31,16 +31,26 @@
                             class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                             Dashboard
                         </a>
+                        <a href="{{ route('doctors.index') }}"
+                            class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                            Doctors
+                        </a>
                     @endif
-                    <a href="{{ route('doctors.index') }}"
-                        class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
-                        Doctors
-                    </a>
                     @can('view patients')
                         <a href="{{ route('patients.index') }}"
                             class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
                             Patients
                         </a>
+                    @endcan
+                    @can('view own appointments')
+                        <a href="{{ route('my-appointments') }}"
+                            class="text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover:text-gray-400">
+                            My Appointments
+                        </a>
+                    @endcan
+                    @can('create appointments')
+                        <a class="btn btn-info" href="{{route('appointments.create')}}" role="button">Create
+                            Appointment</a>
                     @endcan
                 </div>
 
@@ -85,7 +95,7 @@
                             <a href="{{ route('logout') }}"
                                 class="text-gray-800 dark:text-gray-100 px-3 py-2 rounded bg-red-500 hover:text-white dark:bg-red-500 :hover:text-white"
                                 onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                                                        this.closest('form').submit();">
                                 Logout
                             </a>
                         </form>

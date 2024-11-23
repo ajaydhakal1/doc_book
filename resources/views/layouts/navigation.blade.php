@@ -43,6 +43,11 @@
                         {{ __('Schedules') }}
                     </x-nav-link>
                     @endcan
+                    @can('view own schedules')
+                    <x-nav-link :href="route('my-schedules')" :active="request()->routeIs('my-schedules')">
+                        {{ __('My Schedules') }}
+                    </x-nav-link>
+                    @endcan
                     @can('view appointments')
                     <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
                         {{ __('Appointments') }}

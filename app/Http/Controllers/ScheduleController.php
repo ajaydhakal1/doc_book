@@ -6,9 +6,26 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class ScheduleController extends Controller
+class ScheduleController extends Controller implements HasMiddleware
 {
+
+    public static function middleware()
+    {
+        return [
+            new Middleware('permission:view schedules', only: ['index']),
+            new Middleware('permission:view own schedules', only: ['mySchedules']),
+            new Middleware('permission:create schedules', only: ['create']),
+            new Middleware('permission:edit schedules', only: ['edit']),
+            new Middleware('permission:delete schedules', only: ['destroy']),
+        ];
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -26,10 +43,17 @@ class ScheduleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $doctors = Doctor::all(); // Fetch all doctors to assign schedules
-        return view('schedules.create', compact('doctors'));
+        $user = Auth::user();
+        if ($user->hasRole('Doctor')) {
+            $doctor = Auth::user()->doctor;
+            return view('schedules.create', compact('doctor'));
+        } else {
+            $doctors = Doctor::all(); // Fetch all doctors to assign schedules
+            return view('schedules.create', compact('doctors'));
+        }
+
     }
 
     /**
@@ -40,35 +64,51 @@ class ScheduleController extends Controller
         // Validate the input
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
-            'appointment_id' => 'required|exists:appointments,id', // Ensure appointment_id exists
             'schedules.*.date' => 'required|date',
             'schedules.*.start_time' => 'required|date_format:H:i',
             'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
             'schedules.*.status' => 'required|in:available,booked,unavailable',
         ]);
 
-        $doctorId = $request->doctor_id;
+        $user = Auth::user();
 
-        // Iterate through the schedules and create each one
-        foreach ($request->schedules as $scheduleData) {
-            // Check if the appointment_id exists
-            if (!Appointment::find($scheduleData['appointment_id'])) {
-                return redirect()->back()->with('error', 'Appointment not found.');
+        if ($user->hasRole('Doctor')) {
+            $doctor = $user->doctor; // Assuming Doctor relationship exists in the User model
+            $schedules = $request->input('schedules');
+
+            foreach ($schedules as $schedule) {
+                Schedule::create([
+                    'doctor_id' => $doctor->id,
+                    'date' => $schedule['date'], // Correctly map the date for each schedule
+                    'start_time' => $schedule['start_time'],
+                    'end_time' => $schedule['end_time'],
+                    'status' => $schedule['status'],
+                ]);
             }
 
-            // Create the schedule record
-            Schedule::create([
-                'doctor_id' => $doctorId,
-                'appointment_id' => $scheduleData['appointment_id'],
-                'date' => $scheduleData['date'],
-                'start_time' => $scheduleData['start_time'],
-                'end_time' => $scheduleData['end_time'],
-                'status' => $scheduleData['status'],
-            ]);
-        }
+            return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
+        } else {
+            $doctorId = $request->doctor_id;
 
-        return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
+            foreach ($request->schedules as $scheduleData) {
+                if (!Appointment::find($scheduleData['appointment_id'])) {
+                    return redirect()->back()->with('error', 'Appointment not found.');
+                }
+
+                Schedule::create([
+                    'doctor_id' => $doctorId,
+                    'appointment_id' => $scheduleData['appointment_id'],
+                    'date' => $scheduleData['date'],
+                    'start_time' => $scheduleData['start_time'],
+                    'end_time' => $scheduleData['end_time'],
+                    'status' => $scheduleData['status'],
+                ]);
+            }
+
+            return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
+        }
     }
+
 
 
     /**
@@ -133,6 +173,12 @@ class ScheduleController extends Controller
             return redirect()->route('schedules.index')
                 ->with('success', 'Schedule deleted successfully!');
         }
+    }
+
+    public function mySchedules()
+    {
+        $schedules = Schedule::where('doctor_id', auth()->user()->doctor->id)->get();
+        return view('schedules.my-schedules', compact('schedules'));
     }
 
 

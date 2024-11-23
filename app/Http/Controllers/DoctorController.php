@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
-use App\Models\Schedule;
 use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware; // Make sure to import the Role model
 
@@ -57,7 +57,7 @@ class DoctorController extends Controller implements HasMiddleware
         ]);
 
         $user->assignRole('Doctor');
-        
+
         // Create the associated doctor record
         Doctor::create([
             'user_id' => $user->id,

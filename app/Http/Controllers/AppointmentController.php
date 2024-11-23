@@ -25,8 +25,6 @@ class AppointmentController extends Controller implements HasMiddleware
             new Middleware('permission:create appointments', only: ['create']),
             new Middleware('permission:edit appointments', only: ['edit']),
             new Middleware('permission:delete appointments', only: ['destroy']),
-            new Middleware('permission:edit own appointment', only: ['editMyAppointment']),
-            new Middleware('permission:delete own appointment', only: ['deleteMyAppointment']),
         ];
     }
 
@@ -81,9 +79,9 @@ class AppointmentController extends Controller implements HasMiddleware
         if (Auth::user()->hasRole('Patient')) {
             $userId = Auth::user()->id;
             $patient = Patient::where('user_id', $userId)->firstOrFail(); // Ensure the patient exists
-
-            // Check and update the doctor's schedule
             $doctor = Doctor::findOrFail($request->doctor_id);
+
+            // Ensure there are no conflicts in the doctor's schedule
             $existingSchedule = $doctor->schedules()
                 ->where('date', $request->date)
                 ->where('start_time', '<=', $request->end_time)
@@ -94,26 +92,23 @@ class AppointmentController extends Controller implements HasMiddleware
                 return redirect()->back()->with('error', 'The selected doctor is unavailable during the chosen time.');
             }
 
-            $doctor->schedules()->create([
+            $schedule = Schedule::create([
                 'date' => $request->date,
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
+                'doctor_id' => $request->doctor_id,
                 'status' => 'booked',
             ]);
 
-            $appointment = new Appointment();
-            $appointment->patient_id = $patient->id;
-            $appointment->doctor_id = $request->doctor_id;
-            $appointment->schedule_id = $request->schedule_id;
-            $appointment->disease = $request->disease;
-            $appointment->date = $request->date;
-            $appointment->start_time = $request->start_time;
-            $appointment->end_time = $request->end_time;
-            $appointment->status = "booked";
+            Appointment::create([
+                'patient_id' => $patient->id,
+                'doctor_id' => $request->doctor_id,
+                'schedule_id' => $schedule->id,
+                'disease' => $request->disease,
+                'status' => 'booked',
+            ]);
 
-            $appointment->save();
-
-            return redirect()->route('home')->with('success', 'Appointment created successfully!');
+            return redirect()->route('my-appointments')->with('success', 'Appointment created successfully!');
         }
 
         // If the user is an Admin
@@ -287,30 +282,28 @@ class AppointmentController extends Controller implements HasMiddleware
         }
     }
 
-    public function editMyAppointment($id)
+    public function deleteMyAppointment($id, Request $request)
     {
-        $appointment = Appointment::findOrFail($id);
-        $userId = Auth::user()->id;
-        $patient = Patient::where('user_id', $userId)->first();
-        $patientId = $patient->id;
-        if ($appointment->patient_id !== $patientId) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $doctors = Doctor::all();
-        return view('appointments.edit', compact('appointment', 'doctors'));
-    }
-
-    public function deleteMyAppointment($id)
-    {
+        // Fetch the appointment or return 404 if not found
         $appointment = Appointment::findOrFail($id);
 
-        if ($appointment->patient_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+        if (Auth::user()->hasRole('Doctor')) {
+            if ($appointment->doctor_id = Auth::user()->doctor->id) {
+                $appointment->schedule->delete();
+                $appointment->delete();
+                return redirect()->route('my-appointments')->with('success', 'Appointment deleted');
+            } elseif (Auth::user()->hasRole('Patient')) {
+                if ($appointment->patient = Auth::user()->patient->id) {
+                    $appointment->schedule->delete();
+                    $appointment->delete();
+                    return redirect()->route('my-appointments')->with('success', 'Appointment deleted');
+                }
+            }
         }
 
-        $appointment->delete();
-        return redirect()->route('appointments.index')->with('success', 'Appointment deleted successfully.');
+        // Redirect back if the user doesn't have permission
+        return redirect()->back()->with('error', 'You do not have permission to delete appointments.');
     }
+
 
 }

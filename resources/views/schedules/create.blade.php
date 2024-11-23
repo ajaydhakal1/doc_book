@@ -11,12 +11,18 @@
                 <div class="mb-4">
                     <label for="doctor_id" class="block font-medium text-gray-700">Select Doctor</label>
                     <select id="doctor_id" name="doctor_id" required class="w-full mt-1 border-gray-300 rounded-lg">
-                        <option value="" disabled selected>Select a doctor</option>
-                        @foreach($doctors as $doctor)
-                            <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
+                        @if (auth()->user()->hasRole('Doctor'))
+                            <option value="{{ $doctor->id }}" {{ old('doctor') == $doctor->id ? 'selected' : '' }}>
                                 {{ $doctor->user->name }}
                             </option>
-                        @endforeach
+                        @else
+                            <option value="" disabled selected>Select a doctor</option>
+                            @foreach($doctors as $doctor)
+                                <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
+                                    {{ $doctor->user->name }}
+                                </option>
+                            @endforeach
+                        @endif
                     </select>
                     @error('doctor_id')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

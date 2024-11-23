@@ -1,5 +1,6 @@
 <x-app-layout>
     <x-slot name="title">My Appointments</x-slot>
+    <x-message></x-message>
     <div class="bg-gray-100 min-h-screen py-12">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">My Appointments</h1>
@@ -41,21 +42,22 @@
                                         {{ $appointment->disease }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ $appointment->date }}
+                                        {{ $appointment->schedule->date }}
                                     </td>
                                     <td class="px-6 py-4">
-                                        {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->start_time)->format('h:i A') }}
-                                        - {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->end_time)->format('h:i A') }}
+                                        {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->schedule->start_time)->format('g:i A') }}
+                                        -
+                                        {{ \Carbon\Carbon::createFromFormat('H:i', $appointment->schedule->end_time)->format('g:i A') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <span
                                             class="px-2 py-1 rounded-full text-xs font-semibold
-                                            {{ $appointment->status == 'booked' ? 'bg-green-100 text-green-800' : ($appointment->status == 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                                                                                                                                                    {{ $appointment->status == 'booked' ? 'bg-green-100 text-green-800' : ($appointment->status == 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
                                             {{ ucfirst($appointment->status ?? 'unknown') }}
                                         </span>
                                     </td>
 
-                                    @if (Auth::user()->hasRole('Patient'))
+                                    @canany(['edit own appointment', 'delete own appointment'])
                                         <td class="px-6 py-4">
                                             <div class="flex space-x-2 gap-2">
                                                 <!-- Edit Button -->
@@ -69,11 +71,8 @@
                                                         </button>
                                                     </form>
                                                 @endcan
-
-                                                <!-- Delete Button -->
                                                 @can('delete own appointment')
-                                                    <form action="{{ route('deleteMyAppointment', $appointment->id) }}" method="POST"
-                                                        onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+                                                    <form action="{{route('myAppointments.destroy', $appointment->id)}}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
@@ -82,9 +81,9 @@
                                                         </button>
                                                     </form>
                                                 @endcan
-                                            </div>
-                                        </td>
-                                    @endif
+                                    @endcanany
+                                        </div>
+                                    </td>
 
                                 </tr>
                             @endforeach
