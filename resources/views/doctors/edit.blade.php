@@ -44,6 +44,16 @@
                         @enderror
                     </div>
 
+                       <div class="space-y-2">
+                        <label for="hourly_rate" class="text-sm font-semibold text-gray-700">Hourly Rate</label>
+                        <input type="number" name="hourly_rate" id="hourly_rate"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="1000">
+                        @error('hourly_rate')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Speciality Field -->
                     <div class="space-y-2">
                         <label for="speciality_id" class="text-sm font-semibold text-gray-300">Speciality</label>

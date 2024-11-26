@@ -21,13 +21,27 @@ class UserController extends Controller implements HasMiddleware
             new Middleware('permission:delete users', only: ['destroy']),
         ];
     }
-    
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+
+        // Sorting functionality
+        if ($request->filled('sort_by')) {
+            $query->orderBy($request->sort_by, $request->get('order', 'asc'));
+        }
+
+        $users = $query->paginate(10);
+
         return view('users.index', compact('users'));
     }
 

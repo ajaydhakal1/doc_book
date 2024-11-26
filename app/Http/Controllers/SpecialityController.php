@@ -26,7 +26,7 @@ class SpecialityController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $specialities = Speciality::all();
+        $specialities = Speciality::paginate(5);
         return view('specialities.index', compact('specialities'));
     }
 

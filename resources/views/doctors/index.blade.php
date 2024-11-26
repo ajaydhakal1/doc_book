@@ -34,6 +34,8 @@
                                                 <th class="border border-gray-700 px-4 py-3 font-semibold">#</th>
                                                 <th class="border border-gray-700 px-4 py-3 font-semibold">Name</th>
                                                 <th class="border border-gray-700 px-4 py-3 font-semibold">Email</th>
+                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Phone</th>
+                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Hourly Rate</th>
                                                 <th class="border border-gray-700 px-4 py-3 font-semibold">Speciality
                                                 </th>
                                                 @canany(['edit doctors', 'delete doctors'])
@@ -66,6 +68,12 @@
                                                     </td>
                                                     <td class="border border-gray-700 px-4 py-3 text-gray-300">
                                                         {{ $doctor->user->email }}
+                                                    </td>
+                                                    <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        {{ $doctor->phone }}
+                                                    </td>
+                                                    <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                       Rs.{{ $doctor->hourly_rate }}
                                                     </td>
                                                     <td class="border border-gray-700 px-4 py-3 text-gray-300">
                                                         {{ $doctor->speciality->name }}
@@ -118,6 +126,9 @@
                                             @endforelse
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="mt-6">
+                                    {{ $doctors->links('pagination::tailwind') }}
                                 </div>
                             </div>
                         </div>

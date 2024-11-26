@@ -68,6 +68,7 @@ class ScheduleController extends Controller implements HasMiddleware
             'schedules.*.start_time' => 'required|date_format:H:i',
             'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
             'schedules.*.status' => 'required|in:available,booked,unavailable',
+            'schedules.*.appointment_id' => 'nullable|exists:appointments,id', // Allow nullable but validate if provided
         ]);
 
         $user = Auth::user();
@@ -79,25 +80,30 @@ class ScheduleController extends Controller implements HasMiddleware
             foreach ($schedules as $schedule) {
                 Schedule::create([
                     'doctor_id' => $doctor->id,
-                    'date' => $schedule['date'], // Correctly map the date for each schedule
+                    'appointment_id' => $schedule['appointment_id'] ?? null, // Handle nullable appointment_id
+                    'date' => $schedule['date'],
                     'start_time' => $schedule['start_time'],
                     'end_time' => $schedule['end_time'],
                     'status' => $schedule['status'],
                 ]);
             }
 
-            return redirect()->route('schedules.index')->with('success', 'Schedules saved successfully!');
+            return redirect()->route('my-schedules')->with('success', 'Schedules saved successfully!');
         } else {
             $doctorId = $request->doctor_id;
 
             foreach ($request->schedules as $scheduleData) {
-                if (!Appointment::find($scheduleData['appointment_id'])) {
+                // Handle cases where appointment_id is not provided
+                $appointmentId = $scheduleData['appointment_id'] ?? null;
+
+                // Optional check for appointment_id if provided
+                if ($appointmentId && !Appointment::find($appointmentId)) {
                     return redirect()->back()->with('error', 'Appointment not found.');
                 }
 
                 Schedule::create([
                     'doctor_id' => $doctorId,
-                    'appointment_id' => $scheduleData['appointment_id'],
+                    'appointment_id' => $appointmentId, // Nullable appointment_id
                     'date' => $scheduleData['date'],
                     'start_time' => $scheduleData['start_time'],
                     'end_time' => $scheduleData['end_time'],
@@ -161,17 +167,30 @@ class ScheduleController extends Controller implements HasMiddleware
     {
         // Find the schedule by ID
         $schedule = Schedule::findOrFail($id);
+        $user = Auth::user();
 
         // Check if the schedule has an associated appointment
         if ($schedule->appointment) {
             // Delete the associated appointment
             $schedule->appointment->delete();
+            if ($user->hasRole('Doctor')) {
+                return redirect()->route('my-schedules')
+                    ->with('success', 'Schedule deleted successfully!');
+            } else {
+                return redirect()->route('schedules.index')
+                    ->with('success', 'Schedule deleted successfully!');
+            }
         } else {
             // Handle the case where the schedule doesn't have an associated appointment
             $schedule->delete();
-            // Redirect with a success message
-            return redirect()->route('schedules.index')
-                ->with('success', 'Schedule deleted successfully!');
+            if ($user->hasRole('Doctor')) {
+                return redirect()->route('my-schedules')
+                    ->with('success', 'Schedule deleted successfully!');
+            } else {
+                // Redirect with a success message
+                return redirect()->route('schedules.index')
+                    ->with('success', 'Schedule deleted successfully!');
+            }
         }
     }
 

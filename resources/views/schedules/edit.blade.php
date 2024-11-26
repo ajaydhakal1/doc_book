@@ -69,7 +69,6 @@
                                         <select id="status_{{ $schedule->id }}"
                                             name="schedules[{{ $schedule->id }}][status]"
                                             class="w-full mt-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="available" {{ old('schedules.' . $schedule->id . '.status', $schedule->status) === 'available' ? 'selected' : '' }}>Available</option>
                                             <option value="booked" {{ old('schedules.' . $schedule->id . '.status', $schedule->status) === 'booked' ? 'selected' : '' }}>Booked</option>
                                             <option value="unavailable" {{ old('schedules.' . $schedule->id . '.status', $schedule->status) === 'unavailable' ? 'selected' : '' }}>Unavailable</option>
                                         </select>

@@ -79,7 +79,7 @@
                                             {{ $appointment->disease }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                            {{ $appointment->date }}
+                                            {{ $appointment->schedule->date }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                             {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }} -
@@ -134,6 +134,9 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mt-6">
+                        {{ $appointments->links('pagination::tailwind') }}
                     </div>
                 </div>
             </div>

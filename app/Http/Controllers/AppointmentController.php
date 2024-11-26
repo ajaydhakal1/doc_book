@@ -34,7 +34,7 @@ class AppointmentController extends Controller implements HasMiddleware
     public function index()
     {
         // Fetch all appointments along with the associated user and doctor details
-        $appointments = Appointment::with(['patient', 'doctor'])->get();
+        $appointments = Appointment::with(['patient', 'doctor'])->paginate(10);
 
         return view('appointments.index', compact('appointments'));
     }
@@ -71,8 +71,9 @@ class AppointmentController extends Controller implements HasMiddleware
                 },
             ],
             'date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => ['required', 'date_format:H:i', 'after_or_equal:09:00', 'before_or_equal:18:00'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time', 'before_or_equal:18:00'],
+            'status' => 'required',
         ]);
 
         // If the user is a Patient
@@ -104,8 +105,10 @@ class AppointmentController extends Controller implements HasMiddleware
                 'patient_id' => $patient->id,
                 'doctor_id' => $request->doctor_id,
                 'schedule_id' => $schedule->id,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
                 'disease' => $request->disease,
-                'status' => 'booked',
+                'status' => 'pending',
             ]);
 
             return redirect()->route('my-appointments')->with('success', 'Appointment created successfully!');
@@ -139,6 +142,9 @@ class AppointmentController extends Controller implements HasMiddleware
                 'doctor_id' => $request->doctor_id,
                 'schedule_id' => $schedule->id,
                 'disease' => $request->disease,
+                'date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
                 'status' => 'booked',
             ]);
 

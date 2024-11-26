@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Appointment extends Model
 {
     protected $fillable = [
+        'disease',
         'patient_id',  // Corrected to use patient_id
         'doctor_id',
         'schedule_id',
-        'disease',
+        'date',
+        'start_time',
+        'end_time',
         'status'
     ];
 

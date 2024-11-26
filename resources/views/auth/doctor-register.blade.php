@@ -4,12 +4,12 @@
             <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
                 <!-- Header -->
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-center text-gray-900">Create New Doctor</h1>
-                    <p class="mt-2 text-center text-gray-600">Add a new doctor to the system</p>
+                    <h1 class="text-3xl font-bold text-center text-gray-900">Register as Doctor</h1>
                 </div>
 
                 <form action="{{ route('doctors.store') }}" method="post" class="space-y-6">
                     @csrf
+
                     <!-- Name Field -->
                     <div class="space-y-2">
                         <label for="name" class="text-sm font-semibold text-gray-700">Full Name</label>
@@ -94,7 +94,7 @@
                     <div class="pt-4">
                         <button type="submit"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            Create
+                            Register
                         </button>
                     </div>
                 </form>

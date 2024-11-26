@@ -4,12 +4,12 @@
             <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
                 <!-- Header -->
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-center text-gray-900">Create New Doctor</h1>
-                    <p class="mt-2 text-center text-gray-600">Add a new doctor to the system</p>
+                    <h1 class="text-3xl font-bold text-center text-gray-900">Register as Patient</h1>
                 </div>
 
-                <form action="{{ route('doctors.store') }}" method="post" class="space-y-6">
+                <form action="{{ route('patients.store') }}" method="post" class="space-y-6">
                     @csrf
+
                     <!-- Name Field -->
                     <div class="space-y-2">
                         <label for="name" class="text-sm font-semibold text-gray-700">Full Name</label>
@@ -43,29 +43,40 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="hourly_rate" class="text-sm font-semibold text-gray-700">Hourly Rate</label>
-                        <input type="number" name="hourly_rate" id="hourly_rate"
+                        <label for="age" class="text-sm font-semibold text-gray-700">Age</label>
+                        <input type="number" name="age" id="age"
                             class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
-                            placeholder="1000">
-                        @error('hourly_rate')
+                            placeholder="john@example.com">
+                        @error('age')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Speciality Selection -->
                     <div class="space-y-2">
-                        <label for="speciality_id" class="text-sm font-semibold text-gray-700">Speciality</label>
-                        <select id="speciality_id" name="speciality_id"
-                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200">
-                            <option value="" disabled selected>Select a speciality</option>
-                            @foreach ($specialities as $speciality)
-                                <option value="{{ $speciality->id }}">{{ $speciality->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('speciality_id')
+                        <label for="address" class="text-sm font-semibold text-gray-700">Address</label>
+                        <input type="text" name="address" id="address"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200"
+                            placeholder="john@example.com">
+                        @error('address')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div class="space-y-2">
+                        <label for="gender" class="text-sm font-semibold text-gray-700">Gender</label>
+                        <select id="gender" name="gender"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200">
+                            <option value="" disabled selected>Select a gender</option>
+                            <option value="male" @if(old('gender') == 'male') selected @endif>Male</option>
+                            <option value="female" @if(old('gender') == 'female') selected @endif>Female</option>
+                            <option value="others" @if(old('gender') == 'others') selected @endif>Others</option>
+                        </select>
+                        @error('gender')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+
 
                     <!-- Password Field -->
                     <div class="space-y-2">
@@ -94,7 +105,7 @@
                     <div class="pt-4">
                         <button type="submit"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition duration-200 ease-in-out focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            Create
+                            Register
                         </button>
                     </div>
                 </form>

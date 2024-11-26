@@ -64,7 +64,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="gender" class="text-sm font-semibold text-gray-700">Speciality</label>
+                        <label for="gender" class="text-sm font-semibold text-gray-700">Gender</label>
                         <select id="gender" name="gender"
                             class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition duration-200">
                             <option value="" disabled selected>Select a gender</option>

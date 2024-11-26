@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller implements HasMiddleware
 {
@@ -42,9 +43,17 @@ class PatientController extends Controller implements HasMiddleware
             'female' => 'Female',
             'other' => 'Other',
         ];
+        if (Auth::user()) {
+            if (Auth::user()->hasRole('Admin')) {
+                return view('patients.create', compact('genders'));
+            } else {
+                abort(403, 'You dont have permission to perform this action');
+            }
+        } else {
+            return view('auth.patient-register', compact('genders'));
+        }
 
         // Pass $genders to the view.
-        return view('patients.create', compact('genders'));
     }
 
     /**
@@ -87,7 +96,14 @@ class PatientController extends Controller implements HasMiddleware
         $user->patient()->save($patient);
 
         // Redirect back with success message
-        return redirect()->route('patients.index')->with('success', 'Patient created successfully');
+
+        if (Auth::user()) {
+            if (Auth::user()->hasRole('Admin')) {
+                return redirect()->route('patients.index')->with('success', 'Patient created successfully');
+            }
+        } else {
+            return redirect()->route('login')->with('success', 'Registration Successful! Please login to continue');
+        }
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RegisterMail;
 use App\Models\Doctor;
 use App\Models\Speciality;
 use App\Models\User;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware; // Make sure to import the Role model
-
+use Illuminate\Support\Facades\Mail;
 
 class DoctorController extends Controller implements HasMiddleware
 {
@@ -29,14 +30,22 @@ class DoctorController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $doctors = Doctor::with('speciality', 'user')->get();
+        $doctors = Doctor::with('speciality', 'user')->paginate(10);
         return view('doctors.index', compact('doctors'));
     }
 
     public function create()
     {
         $specialities = Speciality::all();
-        return view('doctors.create', compact('specialities'));
+        if (Auth::user()) {
+            if (Auth::user()->hasRole('Admin')) {
+                return view('doctors.create', compact('specialities'));
+            } else {
+                abort(403, 'You dont have permission to perform this action');
+            }
+        } else {
+            return view('auth.doctor-register', compact('specialities'));
+        }
     }
 
     public function store(Request $request)
@@ -47,6 +56,7 @@ class DoctorController extends Controller implements HasMiddleware
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string',
             'speciality_id' => 'required|exists:specialities,id',
+            'hourly_rate' => 'required',
         ]);
 
         // Create a new user
@@ -63,9 +73,17 @@ class DoctorController extends Controller implements HasMiddleware
             'user_id' => $user->id,
             'phone' => $request->phone,
             'speciality_id' => $request->speciality_id,
+            'hourly_rate' => $request->hourly_rate,
         ]);
 
-        return redirect()->route('doctors.index')->with('success', 'Doctor created successfully');
+        if (Auth::user()) {
+            if (Auth::user()->hasRole('Admin')) {
+                return redirect()->route('doctors.index')->with('success', 'Doctor created successfully');
+            }
+        } else {
+            Mail::to($user->email)->queue(new RegisterMail($user));
+            return redirect()->route('login')->with('success', 'Registration Successful! Please login to continue');
+        }
     }
 
     public function edit($id)
@@ -87,6 +105,7 @@ class DoctorController extends Controller implements HasMiddleware
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required',
             'speciality_id' => 'required',
+            'hourly_rate' => 'required',
         ]);
 
         $user = User::find($id);
@@ -105,6 +124,7 @@ class DoctorController extends Controller implements HasMiddleware
         // Update doctor details
         $doctor->phone = $request->input('phone');
         $doctor->speciality_id = $request->input('speciality_id');
+        $doctor->hourly_rate = $request->input('hourly_rate');
         $doctor->save();
 
         return redirect()->route('doctors.index')->with('success', 'Doctor updated successfully');

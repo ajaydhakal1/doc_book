@@ -53,7 +53,7 @@
                 <div>
                     <label for="start_time" class="block text-sm font-medium text-gray-300">Start Time</label>
                     <input type="time" id="start_time" name="start_time"
-                        value="{{ old('start_time', $appointment->start_time) }}"
+                        value="{{ old('start_time', $appointment->start_time) }}" min="09:00" max="18:00"
                         class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                     @error('start_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -64,7 +64,7 @@
                 <div>
                     <label for="end_time" class="block text-sm font-medium text-gray-300">End Time</label>
                     <input type="time" id="end_time" name="end_time"
-                        value="{{ old('end_time', $appointment->end_time) }}"
+                        value="{{ old('end_time', $appointment->end_time) }}" min="09:00" max="18:00"
                         class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                     @error('end_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -78,7 +78,7 @@
                         class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="booked" {{ old('status', $appointment->status) == 'booked' ? 'selected' : '' }}>
                             Booked</option>
-                        <option value="incomplete" {{ old('status', $appointment->status) == 'incomplete' ? 'selected' : '' }}>Incomplete</option>
+                        <option value="failed" {{ old('status', $appointment->status) == 'failed' ? 'selected' : '' }}>Failed</option>
                         <option value="completed" {{ old('status', $appointment->status) == 'completed' ? 'selected' : '' }}>Completed</option>
                     </select>
                     @error('status')

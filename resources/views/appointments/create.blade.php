@@ -75,8 +75,9 @@
                 <!-- Time Fields -->
                 <div>
                     <label for="start_time" class="block text-sm font-medium text-gray-300">Start Time</label>
-                    <input type="time" id="start_time" name="start_time" min="{{ Carbon\Carbon::now() }}"
-                        class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="time" id="start_time" name="start_time" min="09:00" max="18:00"
+                        class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                        required>
                     @error('start_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -84,8 +85,9 @@
 
                 <div>
                     <label for="end_time" class="block text-sm font-medium text-gray-300">End Time</label>
-                    <input type="time" id="end_time" name="end_time" min="{{ Carbon\Carbon::now() }}"
-                        class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="time" id="end_time" name="end_time" min="09:00" max="18:00"
+                        class="w-full mt-1 border border-gray-700 bg-gray-800 text-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                        required>
                     @error('end_time')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror

@@ -112,6 +112,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-6">
+                        {{ $specialities->links('pagination::tailwind') }}
+                    </div>
                 </div>
             </div>
         </div>

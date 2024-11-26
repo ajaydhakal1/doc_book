@@ -9,7 +9,8 @@ class Doctor extends Model
     protected $fillable = [
         'user_id',
         'phone',
-        'speciality_id', // Match schema column
+        'speciality_id',
+        'hourly_rate',
     ];
 
     // Define the relationship with User

@@ -19,88 +19,123 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @can('view users')
-                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
-                        {{ __('Users') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                            {{ __('Users') }}
+                        </x-nav-link>
                     @endcan
                     @can('view doctors')
-                    <x-nav-link :href="route('doctors.index')" :active="request()->routeIs('doctors.index')">
-                        {{ __('Doctors') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('doctors.index')" :active="request()->routeIs('doctors.index')">
+                            {{ __('Doctors') }}
+                        </x-nav-link>
                     @endcan
                     @can('view patients')
-                    <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
-                        {{ __('Patients') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
+                            {{ __('Patients') }}
+                        </x-nav-link>
                     @endcan
                     @can('view specialities')
-                    <x-nav-link :href="route('specialities.index')" :active="request()->routeIs('specialities.index')">
-                        {{ __('Specialities') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('specialities.index')" :active="request()->routeIs('specialities.index')">
+                            {{ __('Specialities') }}
+                        </x-nav-link>
                     @endcan
                     @can('view schedules')
-                    <x-nav-link :href="route('schedules.index')" :active="request()->routeIs('schedules.index')">
-                        {{ __('Schedules') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('schedules.index')" :active="request()->routeIs('schedules.index')">
+                            {{ __('Schedules') }}
+                        </x-nav-link>
                     @endcan
                     @can('view own schedules')
-                    <x-nav-link :href="route('my-schedules')" :active="request()->routeIs('my-schedules')">
-                        {{ __('My Schedules') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('my-schedules')" :active="request()->routeIs('my-schedules')">
+                            {{ __('My Schedules') }}
+                        </x-nav-link>
                     @endcan
+                    @if(auth()->user())
+                    @if(auth()->user()->hasRole('Doctor') || auth()->user()->hasRole('Patient'))
+                        <x-nav-link :href="route('my-appointments')" :active="request()->routeIs('my-appointments')">
+                            {{ __('My Appointments') }}
+                        </x-nav-link>
+                    @endif
+                    @endif
                     @can('view appointments')
-                    <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
-                        {{ __('Appointments') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
+                            {{ __('Appointments') }}
+                        </x-nav-link>
                     @endcan
                     @can('view permissions')
-                    <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.index')">
-                        {{ __('Permissions') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.index')">
+                            {{ __('Permissions') }}
+                        </x-nav-link>
                     @endcan
                     @can('view roles')
-                    <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
-                        {{ __('Roles') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
+                            {{ __('Roles') }}
+                        </x-nav-link>
                     @endcan
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
-             @if(auth()->user())
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+<!-- Settings Dropdown -->
+@if(auth()->user())
+    <div class="hidden sm:flex sm:items-center sm:ms-6">
+        <x-dropdown align="right" width="48">
+            <x-slot name="trigger">
+                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                    <div>{{ Auth::user()->name }}</div>
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
+                    <div class="ms-1">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>
+            </x-slot>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+            <x-slot name="content">
+                <x-dropdown-link :href="route('profile.edit')">
+                    {{ __('Profile') }}
+                </x-dropdown-link>
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                        {{ __('Log Out') }}
+                    </x-dropdown-link>
+                </form>
+            </x-slot>
+        </x-dropdown>
+    </div>
+@else
+    <!-- For unauthenticated users -->
+    <div class="hidden sm:flex sm:items-center sm:ms-6">
+        <!-- Login Button -->
+        <x-nav-link :href="route('login')" class="me-4">
+            {{ __('Login') }}
+        </x-nav-link>
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
+        <!-- Register Dropdown -->
+        <x-dropdown align="right" width="48">
+            <x-slot name="trigger">
+                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                    <div>{{ __('Register') }}</div>
+                    <div class="ms-1">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>
+            </x-slot>
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-            @endif
+            <x-slot name="content">
+                <x-dropdown-link :href="route('patients.create')">
+                    {{ __('Register as Patient') }}
+                </x-dropdown-link>
+                <x-dropdown-link :href="route('doctors.create')">
+                    {{ __('Register as Doctor') }}
+                </x-dropdown-link>
+            </x-slot>
+        </x-dropdown>
+    </div>
+@endif
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -117,36 +152,87 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                {{ __('Home') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @can('view users')
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                    {{ __('Users') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view doctors')
+                <x-responsive-nav-link :href="route('doctors.index')" :active="request()->routeIs('doctors.index')">
+                    {{ __('Doctors') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view patients')
+                <x-responsive-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
+                    {{ __('Patients') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view specialities')
+                <x-responsive-nav-link :href="route('specialities.index')" :active="request()->routeIs('specialities.index')">
+                    {{ __('Specialities') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view schedules')
+                <x-responsive-nav-link :href="route('schedules.index')" :active="request()->routeIs('schedules.index')">
+                    {{ __('Schedules') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view own schedules')
+                <x-responsive-nav-link :href="route('my-schedules')" :active="request()->routeIs('my-schedules')">
+                    {{ __('My Schedules') }}
+                </x-responsive-nav-link>
+            @endcan
+            @if(auth()->user())
+            @if(auth()->user()->hasRole('Doctor') || auth()->user()->hasRole('Patient'))
+                <x-responsive-nav-link :href="route('my-appointments')" :active="request()->routeIs('my-appointments')">
+                    {{ __('My Appointments') }}
+                </x-responsive-nav-link>
+            @endif
+            @endif
+            @can('view appointments')
+                <x-responsive-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
+                    {{ __('Appointments') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view permissions')
+                <x-responsive-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.index')">
+                    {{ __('Permissions') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('view roles')
+                <x-responsive-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
+                    {{ __('Roles') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->
-         @if(auth()->user())
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+        @if(auth()->user())
+            <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+                <div class="px-4">
+                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                <div class="mt-3 space-y-1">
+                    <x-responsive-nav-link :href="route('profile.edit')">
+                        {{ __('Profile') }}
                     </x-responsive-nav-link>
-                </form>
+                    <!-- Authentication -->
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                            {{ __('Log Out') }}
+                        </x-responsive-nav-link>
+                    </form>
+                </div>
             </div>
-        </div>
         @endif
     </div>
 </nav>
