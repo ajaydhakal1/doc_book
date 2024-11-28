@@ -138,13 +138,13 @@
                 @endif
 
                 @if (auth()->user()->hasRole('Doctor'))
-                    <div class="transform transition-all hover:scale-[1.02] hover:shadow-2xl">
+                    <div class="transform transition-all hover:shadow-2xl">
                         <x-doctor-dashboard :schedules="$data['doctor_schedules']" />
                     </div>
                 @endif
 
                 @if (auth()->user()->hasRole('Patient'))
-                    <div class="transform transition-all hover:scale-[1.02] hover:shadow-2xl">
+                    <div class="transform transition-all hover:shadow-2xl">
                         <x-patient-dashboard :appointments="$data['my_appointments']" />
                     </div>
                 @endif

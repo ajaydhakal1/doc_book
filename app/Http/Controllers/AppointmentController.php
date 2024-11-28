@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AppointmentCreated;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use Carbon\Carbon;
 use App\Models\Patient;
+use App\Models\PatientHistory;
+use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,7 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AppointmentController extends Controller implements HasMiddleware
 {
@@ -58,104 +62,63 @@ class AppointmentController extends Controller implements HasMiddleware
      */
     public function store(Request $request)
     {
-        // Validate the input
+        // Validate the request data
         $request->validate([
-            'disease' => 'required|string',
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'required',
+            'date' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
             'patient_id' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
+                    // Only apply the validation if the logged-in user is an admin
                     if (Auth::user()->hasRole('Admin') && empty($value)) {
-                        $fail('Patient is required for Admin.');
+                        $fail('The patient is required when submitting as admin.');
                     }
-                },
+                }
             ],
-            'date' => 'required|date|after_or_equal:today',
-            'start_time' => ['required', 'date_format:H:i', 'after_or_equal:09:00', 'before_or_equal:18:00'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time', 'before_or_equal:18:00'],
-            'status' => 'required',
         ]);
+        // Create a new appointment
+        $schedule = new Schedule();
+        $schedule->doctor_id = $request->doctor_id;
+        $schedule->date = $request->date;
+        $schedule->start_time = $request->start_time;
+        $schedule->end_time = $request->end_time;
+        $schedule->status = 'booked';
+        $schedule->save();
 
-        // If the user is a Patient
-        if (Auth::user()->hasRole('Patient')) {
-            $userId = Auth::user()->id;
-            $patient = Patient::where('user_id', $userId)->firstOrFail(); // Ensure the patient exists
-            $doctor = Doctor::findOrFail($request->doctor_id);
-
-            // Ensure there are no conflicts in the doctor's schedule
-            $existingSchedule = $doctor->schedules()
-                ->where('date', $request->date)
-                ->where('start_time', '<=', $request->end_time)
-                ->where('end_time', '>=', $request->start_time)
-                ->first();
-
-            if ($existingSchedule) {
-                return redirect()->back()->with('error', 'The selected doctor is unavailable during the chosen time.');
-            }
-
-            $schedule = Schedule::create([
-                'date' => $request->date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'doctor_id' => $request->doctor_id,
-                'status' => 'booked',
-            ]);
-
-            Appointment::create([
-                'patient_id' => $patient->id,
-                'doctor_id' => $request->doctor_id,
-                'schedule_id' => $schedule->id,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'disease' => $request->disease,
-                'status' => 'pending',
-            ]);
-
-            return redirect()->route('my-appointments')->with('success', 'Appointment created successfully!');
-        }
-
-        // If the user is an Admin
+        $appointment = new Appointment();
+        $appointment->schedule_id = $schedule->id;
+        $appointment->disease = $request->disease;
+        $appointment->doctor_id = $request->doctor_id;
         if (Auth::user()->hasRole('Admin')) {
-            $doctor = Doctor::findOrFail($request->doctor_id);
-
-            // Ensure there are no conflicts in the doctor's schedule
-            $existingSchedule = $doctor->schedules()
-                ->where('date', $request->date)
-                ->where('start_time', '<=', $request->end_time)
-                ->where('end_time', '>=', $request->start_time)
-                ->first();
-
-            if ($existingSchedule) {
-                return redirect()->back()->with('error', 'The selected doctor is unavailable during the chosen time.');
-            }
-
-            $schedule = Schedule::create([
-                'date' => $request->date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'doctor_id' => $request->doctor_id,
-                'status' => 'booked',
-            ]);
-
-            Appointment::create([
-                'patient_id' => $request->patient_id,
-                'doctor_id' => $request->doctor_id,
-                'schedule_id' => $schedule->id,
-                'disease' => $request->disease,
-                'date' => $request->date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'status' => 'booked',
-            ]);
-
-
-
-            return redirect()->route('appointments.index')->with('success', 'Appointment created successfully!');
+            $appointment->patient_id = $request->patient_id;
+        } else {
+            $patientId = Auth::user()->patient->id;
+            $appointment->patient_id = $patientId;
         }
+        $appointment->date = $request->date;
+        $appointment->start_time = $request->start_time;
+        $appointment->end_time = $request->end_time;
+        if (Auth::user()->hasRole('Admin')) {
+            $appointment->status = 'booked';
+        } else {
+            $appointment->status = 'pending';
+        }
+        $appointment->save();
 
-        return redirect()->back()->with('error', 'Unauthorized action.');
+
+        if ($appointment) {
+            Mail::to($appointment->patient->user->email)->queue(new AppointmentCreated($appointment));
+            if (Auth::user()->hasRole('Admin')) {
+                return redirect()->route('appointments.index')->with('success', 'Appointment created successfully');
+            } else {
+                return redirect()->route('my-appointments')->with('success', 'Appointment created successfully');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Failed to create appointment');
+        }
     }
-
 
 
     /**
@@ -217,6 +180,7 @@ class AppointmentController extends Controller implements HasMiddleware
         $appointment->date = $request->date;
         $appointment->start_time = $request->start_time;
         $appointment->end_time = $request->end_time;
+        $appointment->save();
 
         // Update the related schedule in the `schedules` table
         $schedule = $appointment->doctor->schedules()->where('date', $request->date)->first();
@@ -244,6 +208,140 @@ class AppointmentController extends Controller implements HasMiddleware
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully!');
     }
 
+    public function updateStatus(Request $request, Appointment $appointment, Schedule $appointmentSlot)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,booked,rescheduled,cancelled,completed',
+        ]);
+
+        $status = $request->status;
+
+        // Prevent modifying a completed appointment
+        if ($appointment->status === 'completed' && $status !== 'completed') {
+            return redirect()->route('appointments.index')->with('error', 'This appointment is already completed and cannot be modified.');
+        }
+
+        switch ($status) {
+            case 'pending':
+                $appointment->status = 'pending';
+
+                // Check if the slot is already booked
+                $existingSlot = Schedule::where('doctor_id', $appointment->doctor_id)
+                    ->where('date', $appointment->date)
+                    ->where('start_time', $appointment->start_time)
+                    ->where('end_time', $appointment->end_time)
+                    ->where('status', 'booked')
+                    ->first();
+
+                if ($existingSlot) {
+                    return redirect()->route('appointments.index')->with('error', 'This time slot is already booked.');
+                }
+                break;
+
+            case 'booked':
+                $appointment->status = 'booked';
+
+                // Create or update the appointment slot
+                $existingSlot = Schedule::where('doctor_id', $appointment->doctor_id)
+                    ->where('date', $appointment->date)
+                    ->where('start_time', $appointment->start_time)
+                    ->where('end_time', $appointment->end_time)
+                    ->where('status', 'booked')
+                    ->first();
+
+                if ($existingSlot) {
+                    return redirect()->route('appointments.index')->with('error', 'This time slot is already booked.');
+                }
+
+                $appointmentSlot->fill([
+                    'status' => 'booked',
+                    'start_time' => $appointment->start_time,
+                    'doctor_id' => $appointment->doctor_id,
+                    'end_time' => $appointment->end_time,
+                    'date' => $appointment->date,
+                ])->save();
+                break;
+
+            case 'rescheduled':
+                $appointment->status = 'rescheduled';
+                break;
+
+            case 'cancelled':
+                $appointment->status = 'cancelled';
+
+                // Delete associated slot
+                Schedule::where('doctor_id', $appointment->doctor_id)
+                    ->where('date', $appointment->date)
+                    ->where('start_time', $appointment->start_time)
+                    ->where('end_time', $appointment->end_time)
+                    ->delete();
+
+                // Delete the appointment
+                $appointment->delete();
+
+                return redirect()->route('appointments.index')->with('success', 'Appointment cancelled successfully.');
+                break;
+
+            case 'completed':
+                if ($appointment->status !== 'completed') {
+                    $appointment->status = 'completed';
+
+                    // Delete the corresponding appointment slot
+                    DB::statement('PRAGMA foreign_keys = OFF');
+                    Schedule::where('doctor_id', $appointment->doctor_id)
+                        ->where('date', $appointment->date)
+                        ->where('start_time', $appointment->start_time)
+                        ->where('end_time', $appointment->end_time)
+                        ->delete();
+                    DB::statement('PRAGMA foreign_keys = ON');
+
+                }
+
+                // Check for existing reviews
+                // if (!$appointment->reviews || $appointment->reviews->isEmpty()) {
+                //     return back()->with('error', 'Please add a review first.');
+                // }
+
+                // Calculate total fee
+                $startTime = Carbon::parse($appointment->start_time);
+                $endTime = Carbon::parse($appointment->end_time);
+                $durationInHours = $startTime->diffInHours($endTime);
+                $totalFee = $durationInHours * $appointment->doctor->hourly_rate;
+                // dd($appointment->id);
+                // Create payment record
+                $payment = Payment::create([
+                    'appointment_id' => $appointment->id,
+                    'amount' => $totalFee,
+                    'patient_id' => $appointment->patient_id,
+                ]);
+
+                // Create patient history record
+                $firstReview = $appointment->reviews->first();
+                PatientHistory::create([
+                    'appointment_id' => $appointment->id,
+                    'patient_id' => $appointment->patient_id,
+                    'doctor_id' => $appointment->doctor_id,
+                    // 'review_id' => $firstReview->id,
+                    'payment_id' => $payment->id,
+                ]);
+
+                // Send email notification
+                $patient = Patient::find($appointment->patient_id);
+
+                $appointment->save();
+
+                return redirect()->route('appointments.index')->with('success', 'Appointment marked as completed.')->with('showReviewModal', true);
+                break;
+
+            default:
+                $appointment->status = 'pending';
+        }
+
+        $appointment->save();
+
+        return redirect()->route('appointments.index')->with('success', 'Appointment status updated successfully.');
+    }
+
 
 
     /**
@@ -260,21 +358,21 @@ class AppointmentController extends Controller implements HasMiddleware
 
     public function myAppointments()
     {
+        $userId = Auth::user()->id;
+        $patient = Patient::where('user_id', $userId)->first();
         if (Auth::user()->hasRole('Patient')) {
             // Get the logged-in user's associated patient ID
-            $patient = Patient::where('user_id', Auth::id())->first();
-
-            if (!$patient) {
-                // Handle the case where the user is not a patient
-                return redirect()->route('home')->with('error', 'You do not have any appointments.');
-            }
-
+            $payments = Payment::where('patient_id', $patient->id)
+                ->with(['patient', 'appointment'])->paginate(5);
+            $data['payments'] = $payments;
+            $data['payments'] = Payment::with(['patient', 'appointment'])->paginate(5);
             // Fetch appointments for the logged-in patient
-            $appointments = Appointment::where('patient_id', $patient->id)
+            $data['appointments'] = Appointment::where('patient_id', $patient->id)
                 ->orderBy('date', 'asc') // Ensure column names match your table schema
                 ->get();
+            return view('appointments.my-appointments', $data);
 
-            return view('appointments.my-appointments', compact('appointments'));
+
         } elseif (Auth::user()->hasRole('Doctor')) {
             $doctor = Doctor::where('user_id', Auth::id())->first();
 
@@ -290,26 +388,48 @@ class AppointmentController extends Controller implements HasMiddleware
 
     public function deleteMyAppointment($id, Request $request)
     {
-        // Fetch the appointment or return 404 if not found
+        // Fetch the appointment or return a 404 if not found
         $appointment = Appointment::findOrFail($id);
 
-        if (Auth::user()->hasRole('Doctor')) {
-            if ($appointment->doctor_id = Auth::user()->doctor->id) {
-                $appointment->schedule->delete();
-                $appointment->delete();
-                return redirect()->route('my-appointments')->with('success', 'Appointment deleted');
-            } elseif (Auth::user()->hasRole('Patient')) {
-                if ($appointment->patient = Auth::user()->patient->id) {
-                    $appointment->schedule->delete();
-                    $appointment->delete();
-                    return redirect()->route('my-appointments')->with('success', 'Appointment deleted');
+        // Find the associated schedule based on appointment details
+        $schedule = Schedule::where('doctor_id', $appointment->doctor_id)
+            ->where('date', $appointment->date)
+            ->where('start_time', $appointment->start_time)
+            ->where('end_time', $appointment->end_time)
+            ->first();
+
+        // Ensure the user has the "Patient" role
+        if (Auth::user()->hasRole('Patient')) {
+            // Check if the authenticated user is the owner of the appointment
+            if ($appointment->patient_id === Auth::user()->patient->id) {
+                // Delete the schedule if it exists
+                if ($schedule) {
+                    $schedule->delete();
                 }
+
+                // Delete the appointment
+                $appointment->delete();
+
+                return redirect()
+                    ->route('my-appointments')
+                    ->with('success', 'Appointment deleted successfully.');
             }
+
+            // User does not own the appointment
+            return redirect()
+                ->back()
+                ->with('error', 'You do not have permission to delete this appointment.');
         }
 
-        // Redirect back if the user doesn't have permission
-        return redirect()->back()->with('error', 'You do not have permission to delete appointments.');
-    }
+        // If the user is not a patient but has permission to delete
+        if ($schedule) {
+            $schedule->delete();
+        }
+        $appointment->delete();
 
+        return redirect()
+            ->route('my-appointments')
+            ->with('success', 'Appointment deleted successfully.');
+    }
 
 }

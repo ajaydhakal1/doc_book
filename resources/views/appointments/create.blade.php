@@ -8,7 +8,7 @@
             </div>
 
             <!-- Form Section -->
-            <form action="{{ route('appointments.store') }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route('appointments.store') }}" method="POST"
                 class="p-6 space-y-4">
                 @csrf
 

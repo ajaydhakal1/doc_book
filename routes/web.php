@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisterController;
@@ -41,3 +42,11 @@ Route::put('/appointments/{id}/edit', [AppointmentController::class, 'editMyAppo
 Route::delete('/my-appointments/{id}', [AppointmentController::class, 'deleteMyAppointment'])->name('myAppointments.destroy');
 Route::get('/specialities/{id}/doctors', [SpecialityController::class, 'doctorsBySpeciality'])->name('doctors.speciality');
 Route::get('choose-speciality', [SpecialityController::class, 'chooseSpeciality'])->name('specialities.choose');
+Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
+
+
+Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+Route::get('/payment/{id}/pay', [PaymentController::class, 'pay'])->name('payment.pay');
+Route::get('/payments/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('payment.failure');
+Route::delete('/payments/{id}/delete', [PaymentController::class, 'delete'])->name('payment.delete');

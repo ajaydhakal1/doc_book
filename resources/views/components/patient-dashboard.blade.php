@@ -32,7 +32,7 @@
                             </svg>
                             <strong class="text-gray-200 group-hover:text-white">Doctor:</strong>
                             <span
-                                class="ml-2 text-gray-300 group-hover:text-white">{{ $appointment->doctor->user->name }}</span>
+                                class="ml-2 text-gray-300 group-hover:text-white">{{ $appointment->doctor->user->name ?? 'N/A' }}</span>
                         </div>
                         <div class="flex items-center mb-1">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +43,7 @@
                             </svg>
                             <strong class="text-gray-200 group-hover:text-white">Date:</strong>
                             <span
-                                class="ml-2 text-gray-300 group-hover:text-white">{{ $appointment->schedule->date }}</span>
+                                class="ml-2 text-gray-300 group-hover:text-white">{{ $appointment->date ?? 'N/A' }}</span>
                         </div>
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +54,24 @@
                             </svg>
                             <strong class="text-gray-200 group-hover:text-white">Time:</strong>
                             <span class="ml-2 text-gray-300 group-hover:text-white">
-                                {{ $appointment->schedule->start_time }} - {{ $appointment->schedule->end_time }}
+                                {{ $appointment->start_time ?? 'N/A' }} -
+                                {{ $appointment->end_time ?? 'N/A' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            <i
+                                class="fas fa-{{ $appointment->status === 'completed'
+                                    ? 'check-circle text-green-500'
+                                    : ($appointment->status === 'pending'
+                                        ? 'clock text-yellow-500'
+                                        : ($appointment->status === 'cancelled'
+                                            ? 'times-circle text-red-500'
+                                            : ($appointment->status === 'confirmed'
+                                                ? 'exclamation-circle text-blue-500'
+                                                : 'info-circle text-gray-500'))) }} mr-2"></i>
+                            <strong class="text-gray-200 group-hover:text-white">Status:</strong>
+                            <span class="ml-2 text-gray-300 group-hover:text-white">
+                                {{ $appointment->status ?? 'N/A' }}
                             </span>
                         </div>
                     </li>

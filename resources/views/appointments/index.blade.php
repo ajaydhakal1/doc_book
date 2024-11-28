@@ -11,8 +11,8 @@
                         </div>
                         <a href="{{ route('specialities.choose') }}"
                             class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-sm hover:bg-blue-700 transition duration-150 ease-in-out">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
@@ -79,15 +79,38 @@
                                             {{ $appointment->disease }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                            {{ $appointment->schedule->date }}
+                                            {{ $appointment->date }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                             {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }} -
                                             {{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                            {{ $appointment->status }}
+                                            <form action="{{ route('appointments.updateStatus', $appointment->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="status" onchange="this.form.submit()"
+                                                    class="bg-gray-700 text-gray-300 border border-gray-600 rounded-lg p-2 text-sm">
+                                                    <option value="pending"
+                                                        {{ $appointment->status === 'pending' ? 'selected' : '' }}>
+                                                        Pending</option>
+                                                    <option value="booked"
+                                                        {{ $appointment->status === 'booked' ? 'selected' : '' }}>
+                                                        Booked</option>
+                                                    <option value="rescheduled"
+                                                        {{ $appointment->status === 'rescheduled' ? 'selected' : '' }}>
+                                                        Rescheduled</option>
+                                                    <option value="cancelled"
+                                                        {{ $appointment->status === 'cancelled' ? 'selected' : '' }}>
+                                                        Cancelled</option>
+                                                    <option value="completed"
+                                                        {{ $appointment->status === 'completed' ? 'selected' : '' }}>
+                                                        Completed</option>
+                                                </select>
+                                            </form>
                                         </td>
+
                                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                             <div class="flex justify-center space-x-2">
                                                 <a href="{{ route('appointments.edit', $appointment->id) }}"
@@ -124,7 +147,8 @@
                                             <div class="flex flex-col items-center justify-center space-y-2">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
                                                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                                 </svg>
                                                 <span>No appointments found!</span>

@@ -8,8 +8,8 @@ class Appointment extends Model
 {
     protected $fillable = [
         'disease',
-        'patient_id',  // Corrected to use patient_id
         'doctor_id',
+        'patient_id',
         'schedule_id',
         'date',
         'start_time',
@@ -32,6 +32,16 @@ class Appointment extends Model
     public function schedule()
     {
         return $this->belongsTo(Schedule::class, 'schedule_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 
 }
