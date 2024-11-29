@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2
-                class="font-semibold text-3xl text-gray-100 leading-tight bg-gradient-to-r from-indigo-800 to-purple-900 p-4 rounded-xl shadow-2xl transform transition-all hover:scale-[1.02]">
+                class="font-semibold text-3xl text-gray-100 leading-tight bg-gradient-to-r from-indigo-800 to-purple-900 p-4 rounded-xl shadow-2xl transform transition-all hover:scale-[1.02] dark:bg-gradient-to-r dark:from-indigo-600 dark:to-purple-700 dark:text-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 inline-block mr-3 text-indigo-300" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -13,28 +13,24 @@
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black min-h-screen">
+    <div class="py-8 bg-white min-h-screen dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-black">
         <div class="container mx-auto px-4 lg:px-8">
             {{-- Search Feature --}}
             <form method="GET" action="{{ route('dashboard') }}" class="mb-8">
                 <div class="flex items-center space-x-4">
                     <div class="relative flex-grow">
                         <svg xmlns="http://www.w3.org/2000/svg"
-                            class="absolute top-1/2 left-4 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                            class="absolute top-1/2 left-4 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <input type="text" name="query" value="{{ request('query') }}"
                             placeholder="Search users, schedules, appointments..."
-                            class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-transparent bg-gray-800 text-gray-200 
-                                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent 
-                                   transition-all duration-300 ease-in-out">
+                            class= "bg-blue-300 w-full pl-12 pr-4 py-3 rounded-xl border-2 border-transparent text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 ease-in-out dark:bg-gray-700 dark:text-gray-300 dark:focus:ring-indigo-600">
                     </div>
                     <button type="submit"
-                        class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg 
-                               hover:bg-indigo-700 hover:shadow-xl transform hover:scale-105 
-                               transition-all duration-300 flex items-center space-x-2">
+                        class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 dark:bg-indigo-700 dark:hover:bg-indigo-800">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,9 +44,8 @@
             {{-- Search Results with Enhanced Styling --}}
             @if (!is_null($searchResults))
                 <div
-                    class="bg-gray-800 p-8 rounded-xl shadow-2xl border-l-4 border-indigo-500 mb-8 
-                            transform transition-all hover:shadow-3xl hover:scale-[1.01]">
-                    <h3 class="text-2xl font-bold text-indigo-400 mb-6 flex items-center">
+                    class="bg-gray-800 p-8 rounded-xl shadow-2xl border-l-4 border-indigo-500 mb-8 transform transition-all hover:shadow-3xl hover:scale-[1.01] dark:bg-gray-700 dark:border-indigo-600">
+                    <h3 class="text-2xl font-bold text-indigo-400 mb-6 flex items-center dark:text-indigo-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -62,11 +57,12 @@
                     {{-- Sections with Improved Spacing and Icons --}}
                     @foreach (['users', 'schedules', 'appointments'] as $section)
                         <div class="mb-6">
-                            <h4 class="text-xl font-semibold text-gray-300 mb-4 flex items-center">
+                            <h4 class="text-xl font-semibold text-gray-300 mb-4 flex items-center dark:text-gray-200">
                                 @switch($section)
                                     @case('users')
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-500"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-6 w-6 mr-3 text-green-500 dark:text-green-400" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a8 8 0 00-8 8h16a8 8 0 00-8-8z" />
                                         </svg>
@@ -74,8 +70,9 @@
                                     @break
 
                                     @case('schedules')
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-500"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-6 w-6 mr-3 text-blue-500 dark:text-blue-400" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
@@ -83,8 +80,9 @@
                                     @break
 
                                     @case('appointments')
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-purple-500"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-6 w-6 mr-3 text-purple-500 dark:text-purple-400" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -94,36 +92,40 @@
                             </h4>
                             @forelse($searchResults[$section] as $item)
                                 <div
-                                    class="bg-gray-700 rounded-lg p-3 mb-2 hover:bg-gray-600 transition-colors duration-300">
+                                    class="bg-gray-700 rounded-lg p-3 mb-2 hover:bg-gray-600 transition-colors duration-300 dark:bg-gray-600 dark:hover:bg-gray-500">
                                     @switch($section)
                                         @case('users')
-                                            <p class="text-gray-300">
-                                                <strong class="text-indigo-400">Name:</strong> {{ $item->name }}
-                                                | <strong class="text-indigo-400">Email:</strong> {{ $item->email }}
+                                            <p class="text-gray-300 dark:text-gray-200">
+                                                <strong class="text-indigo-400 dark:text-indigo-300">Name:</strong>
+                                                {{ $item->name }}
+                                                | <strong class="text-indigo-400 dark:text-indigo-300">Email:</strong>
+                                                {{ $item->email }}
                                             </p>
                                         @break
 
                                         @case('schedules')
-                                            <p class="text-gray-300">
-                                                <strong class="text-indigo-400">Date:</strong> {{ $item->date }}
-                                                | <strong class="text-indigo-400">Doctor:</strong>
+                                            <p class="text-gray-300 dark:text-gray-200">
+                                                <strong class="text-indigo-400 dark:text-indigo-300">Date:</strong>
+                                                {{ $item->date }}
+                                                | <strong class="text-indigo-400 dark:text-indigo-300">Doctor:</strong>
                                                 {{ $item->doctor->user->name }}
                                             </p>
                                         @break
 
                                         @case('appointments')
-                                            <p class="text-gray-300">
-                                                <strong class="text-indigo-400">Patient:</strong>
+                                            <p class="text-gray-300 dark:text-gray-200">
+                                                <strong class="text-indigo-400 dark:text-indigo-300">Patient:</strong>
                                                 {{ $item->patient->user->name }}
-                                                | <strong class="text-indigo-400">Doctor:</strong>
+                                                | <strong class="text-indigo-400 dark:text-indigo-300">Doctor:</strong>
                                                 {{ $item->doctor->user->name }}
-                                                | <strong class="text-indigo-400">Date:</strong> {{ $item->schedule->date }}
+                                                | <strong class="text-indigo-400 dark:text-indigo-300">Date:</strong>
+                                                {{ $item->schedule->date }}
                                             </p>
                                         @break
                                     @endswitch
                                 </div>
                                 @empty
-                                    <p class="text-gray-500 italic">No {{ $section }} found.</p>
+                                    <p class="text-gray-500 italic dark:text-gray-400">No {{ $section }} found.</p>
                                 @endforelse
                             </div>
                         @endforeach

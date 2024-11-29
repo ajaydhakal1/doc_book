@@ -1,16 +1,18 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12">
+    <div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-gray-800 shadow-2xl rounded-2xl overflow-hidden border border-gray-700">
-                <div class="p-6 text-gray-200">
+            <div
+                class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="p-6 text-gray-800 dark:text-gray-200">
                     <div class="container">
                         <!-- Header Section -->
-                        <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+                        <div
+                            class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
                             <div
-                                class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex justify-between items-center rounded-t-lg">
+                                class="bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-600 dark:to-blue-700 text-white p-4 flex justify-between items-center rounded-t-lg">
                                 <h1 class="text-xl font-bold">Schedules List</h1>
                                 <a href="{{ route('schedules.create') }}"
-                                    class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg shadow-sm text-sm font-medium hover:bg-gray-200 transition duration-200">
+                                    class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 rounded-lg shadow-sm text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-200">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -26,50 +28,66 @@
                             <div class="p-4">
                                 <div class="overflow-x-auto">
                                     <table
-                                        class="min-w-full border-collapse border border-gray-700 rounded-lg overflow-hidden">
-                                        <thead class="bg-gray-700/50 text-gray-200">
+                                        class="min-w-full border-collapse border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                        <thead class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
                                             <tr>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold">#</th>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Doctor Name
-                                                </th>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Date</th>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Time</th>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold">Status</th>
-                                                <th class="border border-gray-700 px-4 py-3 font-semibold text-center">
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold">
+                                                    #</th>
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold">
+                                                    Doctor Name</th>
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold">
+                                                    Date</th>
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold">
+                                                    Time</th>
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold">
+                                                    Status</th>
+                                                <th
+                                                    class="border border-gray-200 dark:border-gray-700 px-4 py-3 font-semibold text-center">
                                                     Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-gray-800">
+                                        <tbody class="bg-white dark:bg-gray-800">
                                             @forelse ($groupedSchedules as $doctorId => $schedules)
                                                 @foreach ($schedules as $schedule)
                                                     <tr
-                                                        class="even:bg-gray-700/30 hover:bg-gray-700/50 transition duration-150">
-                                                        <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        class="even:bg-gray-100 dark:even:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3 text-gray-800 dark:text-gray-300">
                                                             {{ $loop->parent->iteration }}.{{ $loop->iteration }}
                                                         </td>
-                                                        <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3 text-gray-800 dark:text-gray-300">
                                                             {{ $schedule->doctor->user->name }}
                                                         </td>
-                                                        <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3 text-gray-800 dark:text-gray-300">
                                                             {{ \Carbon\Carbon::parse($schedule->date)->format('d-m-Y') }}
                                                         </td>
-                                                        <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3 text-gray-800 dark:text-gray-300">
                                                             {{ \Carbon\Carbon::parse($schedule->start_time)->format('h:i A') }}
                                                             -
                                                             {{ \Carbon\Carbon::parse($schedule->end_time)->format('h:i A') }}
                                                         </td>
-                                                        <td class="border border-gray-700 px-4 py-3 text-gray-300">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3">
                                                             <span
                                                                 class="px-2 py-1 rounded-full text-xs font-semibold
-                                                                {{ $schedule->status == 'booked' ? 'bg-green-100 text-green-800' : ($schedule->status == 'unavailable' ? 'bg-red-300 text-gray-700' : 'bg-yellow-100 text-yellow-800') }}">
+                                                                {{ $schedule->status == 'booked' ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : ($schedule->status == 'unavailable' ? 'bg-red-300 text-red-800 dark:bg-red-700 dark:text-red-100' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100') }}">
                                                                 {{ ucfirst($schedule->status ?? 'unknown') }}
                                                             </span>
                                                         </td>
-                                                        <td class="border border-gray-700 px-4 py-3">
+                                                        <td
+                                                            class="border border-gray-200 dark:border-gray-700 px-4 py-3">
                                                             <div class="flex justify-center gap-3">
                                                                 <!-- Edit Button -->
                                                                 <a href="{{ route('schedules.edit', $schedule->id) }}"
-                                                                    class="inline-flex items-center px-3 py-1.5 border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-900/50 transition-colors duration-200">
+                                                                    class="inline-flex items-center px-3 py-1.5 border border-blue-500 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors duration-200">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="h-4 w-4 mr-1.5" fill="none"
                                                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +105,7 @@
                                                                     @csrf
                                                                     @method('DELETE')
                                                                     <button type="submit"
-                                                                        class="inline-flex items-center px-3 py-1.5 border border-red-500 text-red-400 rounded-lg hover:bg-red-900/50 transition-colors duration-200"
+                                                                        class="inline-flex items-center px-3 py-1.5 border border-red-500 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors duration-200"
                                                                         onclick="return confirm('Are you sure you want to delete this schedule?');">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             class="h-4 w-4 mr-1.5" fill="none"
@@ -105,7 +123,8 @@
                                                 @endforeach
                                             @empty
                                                 <tr>
-                                                    <td class="text-center text-red-400 px-4 py-3" colspan="6">
+                                                    <td class="text-center text-red-600 dark:text-red-400 px-4 py-3"
+                                                        colspan="6">
                                                         No schedules found!
                                                     </td>
                                                 </tr>

@@ -1,18 +1,20 @@
 <x-app-layout>
-    <div class="py-12 bg-gray-900">
+    <div class="py-12 bg-gray-100 dark:bg-gray-900">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-gray-800 shadow-2xl rounded-xl overflow-hidden border border-gray-700">
+            <div
+                class="bg-white dark:bg-gray-800 shadow-2xl rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                 <!-- Header Section -->
-                <div class="p-6 bg-gradient-to-r from-blue-900 to-blue-800">
+                <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-900 dark:to-blue-800">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h1 class="text-2xl font-bold text-white">Specialties List</h1>
-                            <p class="text-blue-200 text-sm mt-1">Manage all specialties in the system</p>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Specialties List</h1>
+                            <p class="text-blue-700 dark:text-blue-200 text-sm mt-1">Manage all specialties in the system
+                            </p>
                         </div>
                         <a href="{{ route('specialities.create') }}"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-sm hover:bg-blue-700 transition duration-150 ease-in-out">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-sm hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition duration-150 ease-in-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
@@ -26,33 +28,38 @@
                 <!-- Table Section -->
                 <div class="p-6">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-700">
-                            <thead class="bg-gray-800">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-100 dark:bg-gray-700">
                                 <tr>
                                     <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                        #</th>
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                        #
+                                    </th>
                                     <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                        Specialty</th>
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                        Specialty
+                                    </th>
                                     <th scope="col"
-                                        class="px-6 py-3 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                        Actions</th>
+                                        class="px-6 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse ($specialities as $specialty)
-                                    <tr class="hover:bg-gray-700 transition-colors duration-200">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                    <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                        <td
+                                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                             {{ $loop->iteration }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-200">
+                                        <td
+                                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
                                             {{ $specialty->name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <div class="flex justify-center space-x-2">
                                                 <a href="{{ route('doctors.speciality', $specialty->id) }}"
-                                                    class="inline-flex items-center px-3 py-1.5 border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-900/50 transition-colors duration-200">
+                                                    class="inline-flex items-center px-3 py-1.5 border border-blue-500 text-blue-500 dark:text-blue-400 dark:border-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors duration-200">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5"
                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -97,11 +104,13 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="px-6 py-8 text-center text-gray-400">
+                                        <td colspan="3"
+                                            class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                             <div class="flex flex-col items-center justify-center space-y-2">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
                                                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                                 </svg>
                                                 <span>No specialties found!</span>

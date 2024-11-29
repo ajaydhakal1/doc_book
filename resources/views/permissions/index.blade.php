@@ -1,67 +1,77 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between">
-            <h2 class="font-semibold text-xl text-white leading-tight">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Permissions') }}
             </h2>
-            <a href="{{route('permissions.create')}}">
-                <button class="py-2 px-5 bg-slate-600 text-white rounded-md hover:bg-slate-500">Create</button>
+            <a href="{{ route('permissions.create') }}">
+                <button class="py-2 px-5 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition">
+                    Create
+                </button>
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-gray-900">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <x-message></x-message>
-            <table class="w-full bg-gray-800 text-white">
-                <thead class="bg-gray-700">
-                    <tr class="border-b border-gray-600">
-                        <th class="px-6 py-3 text-left" width="60">#</th>
-                        <th class="px-6 py-3 text-left">Name</th>
-                        <th class="px-6 py-3 text-left" width="180">Created</th>
-                        <th class="px-6 py-3 text-center" colspan="2" width="120">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-gray-800">
-                    @if ($permissions->isNotEmpty())
-                        @foreach ($permissions as $permission)
-                            <tr class="border-b border-gray-600">
-                                <td class="px-6 py-3 text-left">
-                                    {{$permission->id}}
-                                </td>
-                                <td class="px-6 py-3 text-left">
-                                    {{$permission->name}}
-                                </td>
-                                <td class="px-6 py-3 text-left">
-                                    {{Carbon\Carbon::parse($permission->created_at)->format('d M Y')}}
-                                </td>
-                                <div class="flex gap-1">
-                                    <td class="py-3 text-center">
-                                        <a href="{{route('permissions.edit', $permission->id)}}">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <table class="w-full text-left border-collapse">
+                    <!-- Table Head -->
+                    <thead class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-sm">
+                        <tr class="border-b dark:border-gray-600">
+                            <th class="px-6 py-3" width="60">#</th>
+                            <th class="px-6 py-3">Name</th>
+                            <th class="px-6 py-3" width="180">Created</th>
+                            <th class="px-6 py-3 text-center" colspan="2" width="120">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <!-- Table Body -->
+                    <tbody class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+                        @if ($permissions->isNotEmpty())
+                            @foreach ($permissions as $permission)
+                                <tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-3">{{ $permission->id }}</td>
+                                    <td class="px-6 py-3">{{ $permission->name }}</td>
+                                    <td class="px-6 py-3">
+                                        {{ \Carbon\Carbon::parse($permission->created_at)->format('d M Y') }}
+                                    </td>
+                                    <td class="px-6 py-3 text-center">
+                                        <a href="{{ route('permissions.edit', $permission->id) }}">
                                             <button
-                                                class="py-2 px-5 bg-slate-600 text-white rounded-md hover:bg-slate-500">Edit</button>
+                                                class="py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition">
+                                                Edit
+                                            </button>
                                         </a>
                                     </td>
-                                    <td class="py-3 text-center">
-                                        <form action="{{route('permissions.destroy', $permission->id)}}" method="post">
+                                    <td class="px-6 py-3 text-center">
+                                        <form action="{{ route('permissions.destroy', $permission->id) }}"
+                                            method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="py-2 px-5 bg-red-600 text-white rounded-md hover:bg-red-500"
-                                                type="submit">Delete</button>
+                                            <button type="submit"
+                                                class="py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
+                                                Delete
+                                            </button>
                                         </form>
                                     </td>
-                                </div>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="5" class="px-6 py-3 text-center text-gray-500 dark:text-gray-400">
+                                    No permissions found.
+                                </td>
                             </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="5" class="text-center py-3">No permissions found</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-            <div class="my-3">
-                {{$permissions->links()}}
+                        @endif
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="p-4">
+                    {{ $permissions->links() }}
+                </div>
             </div>
         </div>
     </div>

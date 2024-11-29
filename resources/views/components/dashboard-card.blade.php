@@ -9,10 +9,11 @@
     <div
         class="relative p-6 rounded-xl shadow-lg 
                 bg-gradient-to-br from-{{ $color }}-600 to-{{ $color }}-800 
-                text-white overflow-hidden">
+                text-white overflow-hidden dark:bg-gradient-to-br dark:from-{{ $color }}-600 dark:to-{{ $color }}-700 dark:text-gray-100">
         {{-- Icon Section --}}
         @if ($icon)
-            <div class="absolute top-0 right-0 m-4 opacity-20 group-hover:opacity-40 transition-opacity">
+            <div
+                class="absolute top-0 right-0 m-4 opacity-20 group-hover:opacity-40 transition-opacity dark:opacity-25 dark:group-hover:opacity-50">
                 {!! $icon !!}
             </div>
         @endif
@@ -20,12 +21,14 @@
         {{-- Content --}}
         <div class="relative z-10">
             <div class="flex items-center justify-between">
-                <h4 class="font-semibold text-lg text-white/80 group-hover:text-white transition-colors">
+                <h4
+                    class="font-semibold text-lg text-white/80 group-hover:text-white transition-colors dark:text-gray-200 dark:group-hover:text-white">
                     {{ $title }}
                 </h4>
 
                 {{-- Trending Indicator --}}
-                <div class="flex items-center text-sm text-white/70 group-hover:text-white transition-colors">
+                <div
+                    class="flex items-center text-sm text-white/70 group-hover:text-white transition-colors dark:text-gray-400 dark:group-hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 9.586 14.586 6H12z"
@@ -35,7 +38,7 @@
                 </div>
             </div>
 
-            <p class="mt-3 text-3xl font-bold text-white tracking-wide">
+            <p class="mt-3 text-3xl font-bold text-white tracking-wide dark:text-gray-200">
                 {{ $value }}
             </p>
         </div>
@@ -44,7 +47,7 @@
         <div
             class="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full 
                     transform translate-x-1/2 translate-y-1/2 
-                    group-hover:scale-125 transition-transform duration-500">
+                    group-hover:scale-125 transition-transform duration-500 dark:bg-white/20">
         </div>
     </div>
 </div>
