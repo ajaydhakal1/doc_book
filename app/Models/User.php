@@ -6,12 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id'
     ];
 
     /**
@@ -49,13 +52,30 @@ class User extends Authenticatable
 
     public function doctor()
     {
-        return $this->hasOne(Doctor::class);  // A user can have one doctor profile
+        return $this->belongsTo(Doctor::class);  // A user can have one doctor profile
     }
 
     // Relationship with Patient
     public function patient()
     {
-        return $this->hasOne(Patient::class);  // A user can have one patient profile
+        return $this->belongsTo(Patient::class);  // A user can have one patient profile
     }
 
+    public function isAdmin()
+    {
+        return $this->role_id == 1;
+    }
+    public function isDoctor()
+    {
+        return $this->role_id == 2;
+    }
+    public function isPatient()
+    {
+        return $this->role_id == 3;
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 }
