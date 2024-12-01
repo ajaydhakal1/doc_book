@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\Models\Role as ModelsRole;
 
@@ -88,16 +89,40 @@ class DoctorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Doctor $doctor)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'email|unique:users,email,' . $doctor->user_id,
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $user = User::where('id', $doctor->user_id);
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role_id' => $request->role_id,
+        ]);
+        $doctor->update($request->all());
+        return response()->json([
+            'message' => 'Updated successfully',
+            'doctor' => [
+                'id' => $doctor->id,
+                'name' => $doctor->user->name,
+                'email' => $doctor->user->email,
+            ]
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Doctor $doctor)
     {
-        //
+        $doctor->delete();
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

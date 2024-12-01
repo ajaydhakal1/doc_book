@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Appointment;
-use App\Models\Doctor;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,24 +33,48 @@ class ScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
+        // Validate the request data
         $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
-            'schedules.*.date' => 'required|date',
-            'schedules.*.start_time' => 'required|date_format:H:i',
-            'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
-            'schedules.*.status' => 'required|in:available,booked,unavailable',
-            'schedules.*.appointment_id' => 'nullable|exists:appointments,id',
+            'doctor_id' => 'required',
+            'schedules.*.date' => 'required',
+            'schedules.*.start_time' => 'required',
+            'schedules.*.end_time' => 'required|after:schedules.*.start_time',
+            'schedules.*.status' => 'required|in:booked,unavailable',
+            'schedules.*.appointment_id' => 'nullable',
         ]);
+        
+        // Check if the user is authenticated
+        $user = Auth::guard('api')->user(); // Ensure you're using the correct guard
 
-        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-        if ($user->isDoctor) {
-            $doctor = $user->doctor; // Assuming Doctor relationship exists in the User model
-            $schedules = $request->input('schedules');
+        // Check if the user has a doctor record
+        if ($request->user()->isDoctor()) {
+            $doctor = $user->doctor;
+            if (!$doctor) {
+                return response()->json(['error' => 'Doctor record not found for this user'], 404);
+            }
+        } else {
+            $doctor_id = $request->doctor_id;
+        }
 
-            foreach ($schedules as $schedule) {
+
+        // Get schedules from the request and make sure it's an array
+        $schedules = $request->input('schedules');
+
+        // Check if schedules is an array
+        if (!is_array($schedules) || empty($schedules)) {
+            return response()->json(['error' => 'Schedules are required and must be an array'], 400);
+        }
+
+        // Process the schedules
+        foreach ($schedules as $schedule) {
+            if ($request->user()->isDoctor()) {
                 Schedule::create([
                     'doctor_id' => $doctor->id,
                     'appointment_id' => $schedule['appointment_id'] ?? null, // Handle nullable appointment_id
@@ -61,37 +83,23 @@ class ScheduleController extends Controller
                     'end_time' => $schedule['end_time'],
                     'status' => $schedule['status'],
                 ]);
-            }
-            return response()->json([
-                'message' => 'Schedules created successfully',
-                'data' => [
-                    'doctor' => Doctor::where('id', $doctor->id),
-                    'schedules' => Schedule::where('doctor_id', $doctor->id),
-                ],
-            ]);
-        } else {
-            $doctorId = $request->doctor_id;
-
-            foreach ($request->schedules as $scheduleData) {
-                // Handle cases where appointment_id is not provided
-                $appointmentId = $scheduleData['appointment_id'] ?? null;
-
-                // Optional check for appointment_id if provided
-                if ($appointmentId && !Appointment::find($appointmentId)) {
-                    return redirect()->back()->with('error', 'Appointment not found.');
-                }
-
+            } else {
                 Schedule::create([
-                    'doctor_id' => $doctorId,
-                    'appointment_id' => $appointmentId, // Nullable appointment_id
-                    'date' => $scheduleData['date'],
-                    'start_time' => $scheduleData['start_time'],
-                    'end_time' => $scheduleData['end_time'],
-                    'status' => $scheduleData['status'],
+                    'doctor_id' => $doctor_id,
+                    'appointment_id' => $schedule['appointment_id'] ?? null, // Handle nullable appointment_id
+                    'date' => $schedule['date'],
+                    'start_time' => $schedule['start_time'],
+                    'end_time' => $schedule['end_time'],
+                    'status' => $schedule['status'],
                 ]);
             }
         }
+
+        return response()->json([
+            'message' => 'Schedules created successfully',
+        ]);
     }
+
 
     /**
      * Display the specified resource.

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\Speciality;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SpecialityController extends Controller
 {
@@ -39,7 +41,19 @@ class SpecialityController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Find the speciality by its ID
+        $speciality = Speciality::findOrFail($id);
+
+        // Retrieve doctors associated with the speciality
+        $doctors = Doctor::where('speciality_id', $speciality->id)->get();
+        foreach ($doctors as $doctor) {
+            $name = $doctor->user->name;
+        }
+        return response()->json([
+            'speciality' => $speciality,
+            'doctors' => $doctors,
+            'name' => $name,
+        ]);
     }
 
     /**
@@ -47,14 +61,29 @@ class SpecialityController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $speciality = Speciality::findOrFail($id);
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'name' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 422);
+        }
+
+        $speciality->name = $input['name'];
+        $speciality->save();
+        return response()->json(['message' => 'Specialty updated successfully'], 200);
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Speciality $speciality)
     {
-        //
+        $speciality->delete();
+        return response()->json(['message' => 'Specialty deleted successfully'], 200);
     }
 }

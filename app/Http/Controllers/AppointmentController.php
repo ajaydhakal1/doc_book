@@ -68,6 +68,7 @@ class AppointmentController extends Controller implements HasMiddleware
             'date' => 'required',
             'start_time' => 'required',
             'end_time' => 'required',
+            'disease' => 'required',
             'patient_id' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
