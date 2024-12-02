@@ -7,8 +7,10 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\V1\BaseController as BaseController;
+use Illuminate\Auth\Events\Registered;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends BaseController
@@ -27,26 +29,33 @@ class AuthController extends BaseController
         // Retrieve the user by email
         $user = User::where('email', $validated['email'])->first();
 
-        // Check if user exists and password is correct
+        // Check if user exists and if the password is correct
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        // Fetch user's role and permissions
-        $roleName = $user->role->name; // Assuming Spatie roles
+        // Fetch the user's role
+        $roleName = Role::where('id', $user->role_id)->pluck('name')->first();
         $permissions = $user->role->permissions->pluck('name');
 
         // Create a personal access token
-        $token = $user->createToken($roleName ?? 'User')->plainTextToken;
+        $token = $user->createToken($roleName)->plainTextToken;
 
-        // Attach additional attributes to the resource
+        // Generate and store a remember token
+        $rememberToken = Str::random(60);
+        $user->remember_token = $rememberToken;
+        $user->save();
+
+        // Set attributes to pass to the resource
         $user->setAttribute('token', $token);
-        $user->setAttribute('roleName', $roleName ?? 'Unknown');
+        $user->setAttribute('roleName', $roleName);
         $user->setAttribute('permissions', $permissions);
+        $user->setAttribute('remember_token', $rememberToken);
 
-        // Return user resource with token
+        // Return the user resource
         return new UserResource($user);
     }
+
 
     /**
      * Handle user registration.
@@ -71,6 +80,11 @@ class AuthController extends BaseController
 
         $user = User::create($input);
 
+        // Generate and store a remember token
+        $rememberToken = Str::random(60);
+        $user->remember_token = $rememberToken;
+        $user->save();
+
         $token = $user->createToken('MyApp')->plainTextToken;
 
         return response()->json([
@@ -90,8 +104,4 @@ class AuthController extends BaseController
 
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
-
-    // Remove unused methods or implement them if needed
-    // public function update(Request $request, string $id) { ... }
-    // public function destroy(string $id) { ... }
 }

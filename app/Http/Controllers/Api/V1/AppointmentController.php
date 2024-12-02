@@ -7,16 +7,19 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Schedule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AppointmentController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Appointment $appointment)
     {
+        $this->authorize('index', $appointment);
         $appointments = Appointment::with(['patient.user', 'doctor.user'])->get();
 
         $data = [];
@@ -38,8 +41,10 @@ class AppointmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, Appointment $appointment)
     {
+        $this->authorize('store', $appointment);
+
         // Validate the request data
         $request->validate([
             'doctor_id' => 'required',
@@ -49,14 +54,14 @@ class AppointmentController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
         ]);
-        
+
         // Check if the user is authenticated
         $user = Auth::guard('api')->user(); // Ensure you're using the correct guard
-        
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        
+
         // dd("아니");
         // Create a new schedule
         $schedule = Schedule::create([
@@ -106,24 +111,39 @@ class AppointmentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Appointment $appointment)
     {
-        //
+        $this->authorize('show', $appointment);
+
+        return response()->json([
+            'patient' => $appointment->patient->user->name,
+            'doctor' => $appointment->doctor->user->name,
+            'appointment' => $appointment,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Appointment $appointment)
     {
-        //
+        $this->authorize('update', $appointment);
+
+        $appointment->update($request->all());
+        return response()->json([
+            'message' => 'Appointment updated successfully',
+            'appointment' => $appointment
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Appointment $appointment)
     {
-        //
+        $this->authorize('destroy', $appointment);
+        $appointment->delete();
+        return response()->json(['message' => 'Appointment deleted successfully'], 200);
+
     }
 }

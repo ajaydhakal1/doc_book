@@ -20,13 +20,17 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1/')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::apiResource('/users', UserController::class)->middleware(AdminMiddleware::class);
-        Route::apiResource('/patients', PatientController::class);
-        Route::apiResource('/roles', RoleController::class);
-        Route::apiResource('/permissions', PermissionController::class);
         Route::apiResource('/schedules', ScheduleController::class);
         Route::apiResource('/appointments', AppointmentController::class);
+        
+        Route::middleware(AdminMiddleware::class)->group(function () {
+            Route::apiResource('/users', UserController::class);
+            Route::apiResource('/patients', PatientController::class);
+            Route::apiResource('/roles', RoleController::class);
+            Route::apiResource('/permissions', PermissionController::class);
+        });
     });
+    
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::apiResource('/doctors', DoctorController::class);

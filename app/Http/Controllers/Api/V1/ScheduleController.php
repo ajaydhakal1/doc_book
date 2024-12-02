@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\Schedule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
+
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
@@ -34,8 +38,9 @@ class ScheduleController extends Controller
      * Store a newly created resource in storage.
      */
 
-    public function store(Request $request)
+    public function store(Request $request, Schedule $schedule)
     {
+        $this->authorize('store', $schedule);
         // Validate the request data
         $request->validate([
             'doctor_id' => 'required',
@@ -45,7 +50,7 @@ class ScheduleController extends Controller
             'schedules.*.status' => 'required|in:booked,unavailable',
             'schedules.*.appointment_id' => 'nullable',
         ]);
-        
+
         // Check if the user is authenticated
         $user = Auth::guard('api')->user(); // Ensure you're using the correct guard
 
@@ -104,24 +109,41 @@ class ScheduleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, Schedule $schedule)
     {
-        //
+        $this->authorize('show', $schedule);
+        $doctor = Doctor::find($id);
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+        return response()->json([
+            'doctor' => $doctor->user->name,
+            'schedules' => $doctor->schedules,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Schedule $schedule)
     {
-        //
+        $this->authorize('update', $schedule);
+        $schedule->update($request->all());
+        return response()->json([
+            'message' => 'Schedule updated successfully',
+            'schedule' => $schedule,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Schedule $schedule)
     {
-        //
+        $this->authorize('delete', $schedule);
+        $schedule->delete();
+        return response()->json([
+            'message' => 'Schedule deleted successfully',
+        ]);
     }
 }

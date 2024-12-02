@@ -8,6 +8,7 @@ use App\Models\Speciality;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\Models\Role as ModelsRole;
 
@@ -54,12 +55,17 @@ class DoctorController extends Controller
             'hourly_rate' => 'required',
         ]);
 
+
         $user = User::create([
             'role_id' => 2,
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
+        // Generate and store a remember token
+        $rememberToken = Str::random(60);
+        $user->remember_token = $rememberToken;
+        $user->save();
 
         // Create the associated doctor record
         Doctor::create([

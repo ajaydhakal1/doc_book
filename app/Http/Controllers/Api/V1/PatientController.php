@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,6 +47,13 @@ class PatientController extends Controller
 
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation Failed!',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
 
         // Create the user
         $user = new User();
@@ -53,6 +61,9 @@ class PatientController extends Controller
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->password = Hash::make($request->input('password')); // Hash the password
+        // Generate and store a remember token
+        $rememberToken = Str::random(60);
+        $user->remember_token = $rememberToken;
         $user->save();
 
         // Create the patient details
@@ -130,21 +141,8 @@ class PatientController extends Controller
      */
     public function update(Request $request, Patient $patient)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'email|unique:users,email,' . $patient->user_id,
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
         $user = User::where('id', $patient->user_id);
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role_id' => $request->role_id,
-        ]);
+        $user->update($request->all());
         $patient->update($request->all());
         return response()->json([
             'message' => 'Updated successfully',
