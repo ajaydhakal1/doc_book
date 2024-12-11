@@ -9,33 +9,45 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class PatientController extends Controller
 {
+    use AuthorizesRequests;
     /**
-     * Display a listing of the resource.
+     * View Patients
      */
-    public function index(Request $request)
+    public function index(Request $request, Patient $patient)
     {
-        if ($request->user()->isAdmin()) {
-            $patients = Patient::all();
-            return response()->json([
-                'message' => 'Patients retrieved successfully',
-                'data' => PatientResource::collection($patients),
-            ]);
-        } else {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+        $this->authorize('index', $patient);
+        $patients = Patient::all();
+        $patientsData = $patients->map(function ($patient) {
+            return [
+                'id' => $patient->id,
+                'name' => $patient->user->name,
+                'email' => $patient->user->email,
+                'age' => $patient->age,
+                'address' => $patient->address,
+                'phone' => $patient->phone,
+                'gender' => $patient->gender,
+                'role_id' => $patient->user->role_id,
+                'role' => $patient->user->role->name
+            ];
+        });
+        return response()->json([
+            'patientsData' => $patientsData
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create Patient
      */
-    public function store(Request $request)
+    public function store(Request $request, Patient $patient)
     {
+        // $this->authorize('store', $patient);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -64,6 +76,7 @@ class PatientController extends Controller
         // Generate and store a remember token
         $rememberToken = Str::random(60);
         $user->remember_token = $rememberToken;
+        $user->assignRole('Patient');
         $user->save();
 
         // Create the patient details
@@ -79,20 +92,24 @@ class PatientController extends Controller
         // Redirect back with success message
         return response()->json([
             'message' => 'Registered successfully',
-            'user' => [
-                'id' => $user->id,
+            'data' => [
+                'id' => $patient->id,
                 'name' => $user->name,
+                'email' => $user->email,
+                'age' => $patient->address,
+                'phone' => $patient->phone,
+                'gender' => $patient->gender,
             ],
         ]);
     }
 
     /**
-     * Display the specified resource.
+     * Show Patient
      */
-    public function show(string $id)
+    public function show(Patient $patient)
     {
-        // Find the patient by ID along with their appointments and related doctor details
-        $patient = Patient::with(['appointments.doctor.user'])->findOrFail($id);
+
+        $this->authorize('show', $patient);
 
         // Prepare patient details
         $patientDetails = [
@@ -137,7 +154,7 @@ class PatientController extends Controller
         ]);
     }
     /**
-     * Update the specified resource in storage.
+     * Update Patient
      */
     public function update(Request $request, Patient $patient)
     {
@@ -155,7 +172,7 @@ class PatientController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Patient
      */
     public function destroy(Patient $patient)
     {

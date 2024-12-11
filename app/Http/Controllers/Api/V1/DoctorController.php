@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Speciality;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Spatie\Permission\Contracts\Role;
-use Spatie\Permission\Models\Role as ModelsRole;
 
 class DoctorController extends Controller
 {
-
+    use AuthorizesRequests;
     /**
-     * Display a listing of the resource.
+     * View Doctors
      */
     // DoctorController.php
 
@@ -27,9 +27,10 @@ class DoctorController extends Controller
         $doctorsData = $doctors->map(function ($doctor) {
             $speciality = Speciality::where('id', $doctor->speciality_id)->pluck('name')->first();
             return [
-                'id' => $doctor->id,
-                'user_id' => $doctor->user_id,
+                'id' => (int) $doctor->id,
+                'user_id' => (int) $doctor->user_id,
                 'name' => $doctor->user ? $doctor->user->name : null, // Fetch the name from the related User
+                'email' => $doctor->user->email,
                 'speciality' => $speciality,
                 'phone' => $doctor->phone,
                 'hourly_rate' => $doctor->hourly_rate,
@@ -38,16 +39,19 @@ class DoctorController extends Controller
             ];
         });
 
-        return response()->json($doctorsData);
+        return response()->json([
+            'data' => $doctorsData,
+        ]);
     }
 
 
 
     /**
-     * Store a newly created resource in storage.
+     * Create Doctor
      */
-    public function store(Request $request)
+    public function store(Request $request, Doctor $doctor)
     {
+        $this->authorize('store', $doctor);
         $request->validate([
             'email' => 'required|email|unique:users, email',
             'phone' => 'required',
@@ -57,18 +61,19 @@ class DoctorController extends Controller
 
 
         $user = User::create([
-            'role_id' => 2,
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'role_id' => 2,
         ]);
         // Generate and store a remember token
         $rememberToken = Str::random(60);
         $user->remember_token = $rememberToken;
+        $user->assignRole("Doctor");
         $user->save();
 
         // Create the associated doctor record
-        Doctor::create([
+        $doctor = Doctor::create([
             'user_id' => $user->id,
             'phone' => $request->phone,
             'speciality_id' => $request->speciality_id,
@@ -77,26 +82,86 @@ class DoctorController extends Controller
 
         return response()->json([
             'message' => 'Registered successfully',
-            'user' => [
-                'id' => $user->id,
+            'data' => [
+                'id' => $doctor->id,
                 'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $doctor->phone,
+                'specialty' => $doctor->speciality->name,
+                'hourly_rate' => $doctor->hourly_rate,
             ],
         ]);
     }
 
     /**
-     * Display the specified resource.
+     * Show Doctor
      */
-    public function show(string $id)
+    public function show(Doctor $doctor)
     {
-        //
+        $this->authorize('show', $doctor);
+
+        // Prepare doctor details
+        $doctorDetails = [
+            "id" => (int) $doctor->id, // Ensure the id is an integer
+            "name" => $doctor->user->name ?? 'Unknown', // Default to 'Unknown' if name is null
+            "email" => $doctor->user->email ?? '',
+            "speciality" => $doctor->speciality->name ?? 'N/A', // Default to 'N/A' if speciality is null
+            "phone" => $doctor->phone ?? '', // Default to empty string if phone is null
+            "hourly_rate" => (float) $doctor->hourly_rate,
+        ];
+
+        // Categorize appointments into upcoming and past
+        $appointments = [
+            'upcoming' => $doctor->appointments()
+                ->where('date', '>', Carbon::now())
+                ->get(['patient_id', 'date', 'start_time', 'end_time'])
+                ->map(function ($appointment) {
+                    return [
+                        'patient_name' => $appointment->patient->user->name ?? 'N/A', // Ensure 'patient_name' is a string
+                        'date' => $appointment->date, // Ensure date is in string format (e.g., '2024-12-06')
+                        'start_time' => $appointment->start_time, // Ensure time is in string format (e.g., '13:00:00')
+                        'end_time' => $appointment->end_time, // Ensure time is in string format (e.g., '14:00:00')
+                    ];
+                }),
+            'past' => $doctor->appointments()
+                ->where('date', '<', Carbon::now())
+                ->get(['patient_id', 'date', 'start_time', 'end_time'])
+                ->map(function ($appointment) {
+                    return [
+                        'patient_name' => $appointment->patient->user->name ?? 'N/A', // Ensure 'patient_name' is a string
+                        'date' => $appointment->date, // Ensure date is in string format (e.g., '2024-12-06')
+                        'start_time' => $appointment->start_time, // Ensure time is in string format (e.g., '13:00:00')
+                        'end_time' => $appointment->end_time, // Ensure time is in string format (e.g., '14:00:00')
+                    ];
+                }),
+        ];
+
+        // Fetch schedules
+        $schedules = $doctor->schedules->map(function ($schedule) {
+            return [
+                'start_time' => $schedule->start_time, // Ensure time is in string format
+                'end_time' => $schedule->end_time, // Ensure time is in string format
+                'date' => $schedule->date, // Ensure date is in string format
+            ];
+        });
+
+        // Return JSON response with doctor details, appointments, and schedules
+        return response()->json([
+            'doctor' => $doctorDetails,
+            'appointments' => $appointments,
+            'schedules' => $schedules,
+        ]);
     }
 
+
+
+
     /**
-     * Update the specified resource in storage.
+     * Update Doctor
      */
     public function update(Request $request, Doctor $doctor)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'email|unique:users,email,' . $doctor->user_id,
@@ -124,7 +189,7 @@ class DoctorController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Doctor
      */
     public function destroy(Doctor $doctor)
     {

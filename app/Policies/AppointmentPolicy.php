@@ -15,27 +15,19 @@ class AppointmentPolicy
         //
     }
 
-    public function index(User $user, Appointment $appointment): bool
-    {
-        // Allow only users with the 'admin' role
-        return $user->role_id === 1 || $user->id = $appointment->patient->user_id;
+    public function index(User $user, Appointment $appointment){
+        return $user->isAdmin() || $appointment->patient_id == $user->user_id;
     }
-
-    public function show(User $user, Appointment $appointment): bool
-    {
-        // Allow only users with the 'admin' role
-        return $user->role_id === 1 || $user->id = $appointment->patient->user_id;
+    public function store(User $user, Appointment $appointment){
+        return $user->isAdmin() || $user->isPatient();
     }
-
-    public function update(User $user, Appointment $appointment): bool
-    {
-        // Allow only users with the 'admin' role
-        return $user->role_id === 1;
+    public function show(User $user, Appointment $appointment){
+        return $user->isAdmin() || $user->id === $appointment->patient->user->id;
     }
-
-    public function destroy(User $user, Appointment $appointment): bool
-    {
-        // Allow only users with the 'admin' role
-        return $user->role_id === 1 || $user->id = $appointment->patient->user_id;
+    public function update(User $user, Appointment $appointment){
+        return $user->isAdmin();
+    }
+    public function destroy(User $user, Appointment $appointment){
+        return $user->isAdmin() || $user->id === $appointment->patient->user_id;
     }
 }

@@ -14,17 +14,22 @@ class SchedulePolicy
     {
         //
     }
+    public function index(User $user, Schedule $schedule): bool
+    {
+        // Allow if the user is an admin or the doctor related to the schedule
+        return $user->isAdmin() || $user->id === $schedule->doctor_id;
+    }
 
     public function store(User $user, Schedule $schedule): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
-        return $user->role_id === 1 || $user->role_id === 2;
+        return $user->isAdmin() || $user->isDoctor();
     }
 
     public function show(User $user, Schedule $schedule): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
-        return $user->role_id === 1 || $user->id === $schedule->doctor_id;
+        return $user->isAdmin() || $user->id === $schedule->doctor->user_id;
     }
 
     /**
@@ -33,7 +38,7 @@ class SchedulePolicy
     public function update(User $user, Schedule $schedule): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
-        return $user->role_id === 1 || $user->id === $schedule->doctor_id;
+        return $user->isAdmin() || $user->id === $schedule->doctor_id;
     }
 
     /**
@@ -42,6 +47,6 @@ class SchedulePolicy
     public function destroy(User $user, Schedule $schedule): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
-        return $user->role_id === 1 || $user->id === $schedule->doctor_id;
+        return $user->isAdmin() || $user->id === $schedule->doctor_id;
     }
 }

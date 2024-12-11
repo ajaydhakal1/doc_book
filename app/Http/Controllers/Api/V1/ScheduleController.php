@@ -14,10 +14,11 @@ class ScheduleController extends Controller
 
     use AuthorizesRequests;
     /**
-     * Display a listing of the resource.
+     * View Schedules
      */
-    public function index()
+    public function index(Schedule $schedule)
     {
+        $this->authorize('index', $schedule);
         // Fetch schedules with related doctor and user
         $schedules = Schedule::with('doctor.user')->get();
         // Group schedules by doctor_id
@@ -35,7 +36,7 @@ class ScheduleController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * Create Schedules
      */
 
     public function store(Request $request, Schedule $schedule)
@@ -107,12 +108,12 @@ class ScheduleController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Show Schedule
      */
-    public function show(string $id, Schedule $schedule)
+    public function show(Schedule $schedule)
     {
         $this->authorize('show', $schedule);
-        $doctor = Doctor::find($id);
+        $doctor = $schedule->doctor;
         if (!$doctor) {
             return response()->json(['error' => 'Doctor not found'], 404);
         }
@@ -123,7 +124,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Schedule
      */
     public function update(Request $request, Schedule $schedule)
     {
@@ -136,7 +137,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Schedule
      */
     public function destroy(Schedule $schedule)
     {

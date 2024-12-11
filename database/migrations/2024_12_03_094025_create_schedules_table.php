@@ -10,12 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('doctors', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('speciality_id')->constrained('specialities'); // Correct table name
-            $table->string('phone');
-            $table->double('hourly_rate');
+            $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade'); // Cascade delete doctor
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->enum('status', ['booked', 'unavailable']);
             $table->timestamps();
         });
 
@@ -26,6 +27,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('doctors');
+        Schema::dropIfExists('schedules');
     }
 };

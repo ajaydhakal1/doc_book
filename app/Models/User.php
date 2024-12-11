@@ -20,12 +20,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role_id'
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,6 +50,11 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);  // Assuming each user has one doctor
     }
 
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
     // Relationship with Patient
     public function patient()
     {
@@ -74,8 +74,5 @@ class User extends Authenticatable
         return $this->role_id == 3;
     }
 
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
+  
 }

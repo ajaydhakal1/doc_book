@@ -15,7 +15,7 @@ class AppointmentController extends Controller
 {
     use AuthorizesRequests;
     /**
-     * Display a listing of the resource.
+     * View Appointments
      */
     public function index(Appointment $appointment)
     {
@@ -27,9 +27,13 @@ class AppointmentController extends Controller
             $doctorName = $appointment->doctor?->user?->name ?? 'Unknown Doctor';
             $patientName = $appointment->patient?->user?->name ?? 'Unknown Patient';
 
-            $data[] = [
+            $data = [
                 'doctor' => $doctorName,
                 'patient' => $patientName,
+                'date' => $appointment->date,
+                'start_time' => $appointment->start_time,
+                'end_time' => $appointment->end_time,
+                'status' => $appointment->status,
             ];
         }
 
@@ -39,7 +43,7 @@ class AppointmentController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * Create Appointment
      */
     public function store(Request $request, Appointment $appointment)
     {
@@ -62,20 +66,27 @@ class AppointmentController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // dd("아니");
-        // Create a new schedule
-        $schedule = Schedule::create([
-            'doctor_id' => $request->input('doctor_id'),
-            'date' => $request->input('date'),
-            'start_time' => $request->input('start_time'),
-            'end_time' => $request->input('end_time'),
-            'status' => 'booked',
-        ]);
-
         // Check if the doctor exists
         $doctor = Doctor::find($request->doctor_id);
         if (!$doctor) {
             return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        // Check if the doctor is unavailable or already booked during the requested time slot
+        $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+            ->where('date', $request->date)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                    ->orWhere(function ($query) use ($request) {
+                        $query->where('start_time', '<', $request->end_time)
+                            ->where('end_time', '>', $request->start_time);
+                    });
+            })
+            ->exists();
+
+        if ($existingSchedule) {
+            return response()->json(['error' => 'The doctor is already booked or unavailable at the selected time'], 400);
         }
 
         // Handle patient logic
@@ -93,6 +104,15 @@ class AppointmentController extends Controller
             return response()->json(['error' => 'Patient not found'], 404);
         }
 
+        // Create the schedule if the doctor is available
+        $schedule = Schedule::create([
+            'doctor_id' => $request->input('doctor_id'),
+            'date' => $request->input('date'),
+            'start_time' => $request->input('start_time'),
+            'end_time' => $request->input('end_time'),
+            'status' => 'booked',
+        ]);
+
         // Create appointment
         Appointment::create([
             'schedule_id' => $schedule->id,
@@ -108,8 +128,9 @@ class AppointmentController extends Controller
         return response()->json(['message' => 'Appointment created successfully'], 200);
     }
 
+
     /**
-     * Display the specified resource.
+     * Show Appointment
      */
     public function show(Appointment $appointment)
     {
@@ -123,7 +144,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Appointment
      */
     public function update(Request $request, Appointment $appointment)
     {
@@ -132,12 +153,21 @@ class AppointmentController extends Controller
         $appointment->update($request->all());
         return response()->json([
             'message' => 'Appointment updated successfully',
-            'appointment' => $appointment
+            'appointment' => [
+                'id' => $appointment->id,
+                'schedule_id' => $appointment->schedule_id,
+                'patient' => $appointment->patient->user->name,
+                'doctor' => $appointment->doctor->user->name,
+                'disease' => $appointment->disease,
+                'start_time' => $appointment->start_time,
+                'end_time' => $appointment->end_time,
+                'status' => $appointment->status,
+            ]
         ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Appointment
      */
     public function destroy(Appointment $appointment)
     {

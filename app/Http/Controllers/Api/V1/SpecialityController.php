@@ -5,13 +5,15 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Speciality;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class SpecialityController extends Controller
 {
+    use AuthorizesRequests;
     /**
-     * Display a listing of the resource.
+     * View Specialties
      */
     public function index()
     {
@@ -20,10 +22,11 @@ class SpecialityController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create Specialty
      */
-    public function store(Request $request)
+    public function store(Request $request, Speciality $speciality)
     {
+        $this->authorize('store', $speciality);
         $request->validate([
             'name' => 'required|string',
         ]);
@@ -37,7 +40,7 @@ class SpecialityController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show Specialty
      */
     public function show(string $id)
     {
@@ -57,10 +60,11 @@ class SpecialityController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Specialty
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, Speciality $speciality)
     {
+        $this->authorize('update', $speciality);
         $speciality = Speciality::findOrFail($id);
         $input = $request->all();
 
@@ -74,15 +78,19 @@ class SpecialityController extends Controller
 
         $speciality->name = $input['name'];
         $speciality->save();
-        return response()->json(['message' => 'Specialty updated successfully'], 200);
+        return response()->json([
+            'message' => 'Specialty updated successfully',
+            'name' => $speciality->name
+        ], 200);
 
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Specialty
      */
     public function destroy(Speciality $speciality)
     {
+        $this->authorize('destroy', $speciality);
         $speciality->delete();
         return response()->json(['message' => 'Specialty deleted successfully'], 200);
     }

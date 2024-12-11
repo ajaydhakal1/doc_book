@@ -11,12 +11,13 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\V1\BaseController as BaseController;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends BaseController
 {
     /**
-     * Handle user login.
+     * User Login
      */
     public function login(Request $request)
     {
@@ -35,11 +36,9 @@ class AuthController extends BaseController
         }
 
         // Fetch the user's role
-        $roleName = Role::where('id', $user->role_id)->pluck('name')->first();
-        $permissions = $user->role->permissions->pluck('name');
-
+        $role = $user->role->name;
         // Create a personal access token
-        $token = $user->createToken($roleName)->plainTextToken;
+        $token = $user->createToken('DocBook')->plainTextToken;
 
         // Generate and store a remember token
         $rememberToken = Str::random(60);
@@ -48,8 +47,7 @@ class AuthController extends BaseController
 
         // Set attributes to pass to the resource
         $user->setAttribute('token', $token);
-        $user->setAttribute('roleName', $roleName);
-        $user->setAttribute('permissions', $permissions);
+        $user->setAttribute('role', $role);
         $user->setAttribute('remember_token', $rememberToken);
 
         // Return the user resource
@@ -58,7 +56,7 @@ class AuthController extends BaseController
 
 
     /**
-     * Handle user registration.
+     * User Registration
      */
     public function register(Request $request): JsonResponse
     {
@@ -67,17 +65,14 @@ class AuthController extends BaseController
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
             'confirm_password' => 'required|same:password',
-            'role_id' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $input = $request->only(['name', 'email', 'password']);
+        $input = $request->only(['name', 'email', 'password', 'role_id']);
         $input['password'] = bcrypt($input['password']);
-        $input['role_id'] = $request->input('role_id');
-
         $user = User::create($input);
 
         // Generate and store a remember token
@@ -85,17 +80,60 @@ class AuthController extends BaseController
         $user->remember_token = $rememberToken;
         $user->save();
 
-        $token = $user->createToken('MyApp')->plainTextToken;
+        $token = $user->createToken('DocBook')->plainTextToken;
 
         return response()->json([
             'token' => $token,
             'name' => $user->name,
+            'email' => $user->email,
             'message' => 'User registered successfully.',
         ], 201);
     }
 
+
     /**
-     * Handle user logout.
+     * Update Password
+     */
+    public function updatePassword(Request $request)
+    {
+        // Validate the input
+        $validated = $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:8',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        // Get the currently authenticated user
+        $userId = Auth::user();
+        $id = $userId->id;
+        $user = User::find($id);
+
+        // Check if the user is authenticated
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized. Please log in to continue.'
+            ], 401); // Unauthorized status code
+        }
+
+        // Check if the current password matches
+        if (Hash::check($request->current_password, $user->password)) {
+            // Update the password
+            $user->password = Hash::make($request->password); // Encrypt the new password
+            $user->save(); // Save the changes
+
+            return response()->json([
+                "message" => "Password Updated Successfully"
+            ]);
+        } else {
+            return response()->json([
+                "message" => "Current Password doesn't match"
+            ], 400); // Bad Request status code
+        }
+    }
+
+
+    /**
+     * User Logout
      */
     public function logout(Request $request)
     {

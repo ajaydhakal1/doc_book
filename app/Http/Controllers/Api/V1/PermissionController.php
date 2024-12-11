@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
@@ -10,7 +11,7 @@ use Spatie\Permission\Models\Permission;
 class PermissionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * View Permissions
      */
     public function index()
     {
@@ -19,7 +20,7 @@ class PermissionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create Permission
      */
     public function store(Request $request)
     {
@@ -33,26 +34,34 @@ class PermissionController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show Permission
      */
-    public function show(string $id)
+    public function show(Permission $permission)
     {
-        //
+        return response()->json([
+            "Permission" => $permission,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Permission
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Permission $permission)
     {
-        //
+        $permission->update($request->all());
+        return response()->json([
+            'message' => 'Permission Updated Successfully'
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete Permission
      */
-    public function destroy(string $id)
+    public function destroy(Permission $permission)
     {
-        //
+        $permission->delete();
+        return response()->json([
+            'message' => 'Permission deleted successfully'
+        ]);
     }
 }
