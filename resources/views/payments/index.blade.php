@@ -28,8 +28,7 @@
                             @forelse($payments as $payment)
                                 <tr class="border-b hover:bg-gray-50">
                                     <td class="px-4 py-2">{{ $payment->id }}</td>
-                                    <td class="px-4 py-2">{{ $payment->patient->user->name ?? 'N/A' }}
-                                        {{ $payment->patient->user->l_name ?? 'N/A' }}</td>
+                                    <td class="px-4 py-2">{{ $payment->patient->user->name }}</td>
                                     <td class="px-4 py-2">{{ $payment->amount }}</td>
                                     <td class="px-4 py-2">{{ ucfirst($payment->payment_type) }}</td>
                                     <td class="px-4 py-2">{{ ucfirst($payment->payment_status) }}</td>
@@ -51,15 +50,17 @@
                                                 </button>
                                             </form>
 
-                                            <a href="{{ route('payment.pay', $payment->id) }}"
-                                                class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-lg transition duration-200">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                                Pay
-                                            </a>
+                                            @if (!($payment->status = 'Completed'))
+                                                <a href="{{ route('payment.pay', $payment->id) }}"
+                                                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-lg transition duration-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Pay
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
 

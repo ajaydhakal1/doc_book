@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('appointment_id');
             $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('cascade');
             $table->text('comment')->nullable();
-            $table->string('pdf')->nullable(); // Add the pdf column
+            $table->string('pdf')->nullable();
             $table->timestamps();
         });
     }

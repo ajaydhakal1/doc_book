@@ -12,7 +12,7 @@
                     Manage your appointments with ease and efficiency
                 </p>
                 <div class="flex justify-center py-8">
-                    <img src="{{ ('doctor-patient.png') }}" alt="Doctor and Patient"
+                    <img src="doctor-patient.png" alt="Doctor and Patient"
                         class="rounded-2xl shadow-2xl w-full max-w-6xl transition-transform">
                 </div>
             </div>

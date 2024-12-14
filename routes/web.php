@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SearchController;
@@ -50,3 +51,5 @@ Route::get('/payment/{id}/pay', [PaymentController::class, 'pay'])->name('paymen
 Route::get('/payments/success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('payment.failure');
 Route::delete('/payments/{id}/delete', [PaymentController::class, 'delete'])->name('payment.delete');
+
+Route::resource('reviews', ReviewController::class);

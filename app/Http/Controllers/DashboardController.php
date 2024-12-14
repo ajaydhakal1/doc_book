@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Appointment;
 use App\Models\Schedule;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
@@ -21,13 +22,13 @@ class DashboardController extends Controller
             $data = [
                 'total_schedules' => Schedule::count(),
                 'total_appointments' => Appointment::count(),
-                'total_doctors' => User::role('Doctor')->count(),
-                'total_patients' => User::role('Patient')->count(),
+                'total_doctors' => Role::findByName('Doctor', 'web')->users()->count(),
+                'total_patients' => Role::findByName('Patient', 'web')->users()->count(),
                 'todays_schedules' => Schedule::where('date', $today)->get(),
                 'todays_appointments' => Appointment::whereHas('schedule', function ($q) use ($today) {
                     $q->where('date', $today);
                 })->get(),
-                'available_doctors' => User::role('Doctor')->get(),
+                'available_doctors' => Role::findByName('Doctor', 'web')->users,
             ];
         }
 
@@ -56,7 +57,7 @@ class DashboardController extends Controller
                 ->get();
 
             // Fetch all doctors with the "Doctor" role.
-            $data['available_doctors'] = User::role('Doctor')->get();
+            $data['available_doctors'] = Role::findByName('Doctor', 'web')->users;
         }
 
         // Initialize search results.

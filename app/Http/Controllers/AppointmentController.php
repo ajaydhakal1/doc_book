@@ -9,15 +9,15 @@ use Carbon\Carbon;
 use App\Models\Patient;
 use App\Models\PatientHistory;
 use App\Models\Payment;
+use App\Models\Review;
 use App\Models\Schedule;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+
 
 class AppointmentController extends Controller implements HasMiddleware
 {
@@ -68,6 +68,7 @@ class AppointmentController extends Controller implements HasMiddleware
             'date' => 'required',
             'start_time' => 'required',
             'end_time' => 'required',
+            'disease' => 'required',
             'patient_id' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
@@ -78,7 +79,29 @@ class AppointmentController extends Controller implements HasMiddleware
                 }
             ],
         ]);
-        // Create a new appointment
+
+        // Fetch doctor and validate if it exists
+        $doctor = Doctor::find($request->doctor_id);
+        if (!$doctor) {
+            return redirect()->back()->with('error', 'Doctor not found');
+        }
+
+        // Check if the doctor is available during the selected time slot
+        $conflict = $doctor->appointments()
+            ->where('date', $request->date)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                    ->orWhereRaw('? BETWEEN start_time AND end_time', [$request->start_time])
+                    ->orWhereRaw('? BETWEEN start_time AND end_time', [$request->end_time]);
+            })
+            ->exists();
+
+        if ($conflict) {
+            return redirect()->back()->with('error', 'The selected doctor is unavailable during the chosen time.');
+        }
+
+        // Create a new schedule for the doctor
         $schedule = new Schedule();
         $schedule->doctor_id = $request->doctor_id;
         $schedule->date = $request->date;
@@ -87,38 +110,36 @@ class AppointmentController extends Controller implements HasMiddleware
         $schedule->status = 'booked';
         $schedule->save();
 
+        // Create an appointment for the patient
         $appointment = new Appointment();
         $appointment->schedule_id = $schedule->id;
         $appointment->disease = $request->disease;
         $appointment->doctor_id = $request->doctor_id;
+
         if (Auth::user()->hasRole('Admin')) {
             $appointment->patient_id = $request->patient_id;
+            $appointment->status = 'booked';
         } else {
-            $patientId = Auth::user()->patient->id;
-            $appointment->patient_id = $patientId;
+            $appointment->patient_id = Auth::user()->patient->id;
+            $appointment->status = 'pending';
         }
+
         $appointment->date = $request->date;
         $appointment->start_time = $request->start_time;
         $appointment->end_time = $request->end_time;
-        if (Auth::user()->hasRole('Admin')) {
-            $appointment->status = 'booked';
-        } else {
-            $appointment->status = 'pending';
-        }
         $appointment->save();
 
+        // Send appointment confirmation email
+        Mail::to($appointment->patient->user->email)->queue(new AppointmentCreated($appointment));
 
-        if ($appointment) {
-            Mail::to($appointment->patient->user->email)->queue(new AppointmentCreated($appointment));
-            if (Auth::user()->hasRole('Admin')) {
-                return redirect()->route('appointments.index')->with('success', 'Appointment created successfully');
-            } else {
-                return redirect()->route('my-appointments')->with('success', 'Appointment created successfully');
-            }
+        // Redirect based on user role
+        if (Auth::user()->hasRole('Admin')) {
+            return redirect()->route('appointments.index')->with('success', 'Appointment created successfully');
         } else {
-            return redirect()->back()->with('error', 'Failed to create appointment');
+            return redirect()->route('my-appointments')->with('success', 'Appointment created successfully');
         }
     }
+
 
 
     /**
@@ -355,36 +376,63 @@ class AppointmentController extends Controller implements HasMiddleware
         return redirect()->route('appointments.index')->with('success', 'Appointment and related schedules deleted successfully!');
     }
 
-
     public function myAppointments()
     {
-        $userId = Auth::user()->id;
-        $patient = Patient::where('user_id', $userId)->first();
+        $userId = Auth::id(); // Simplified user ID retrieval
+        // Check if the user is a Patient
         if (Auth::user()->hasRole('Patient')) {
-            // Get the logged-in user's associated patient ID
-            $payments = Payment::where('patient_id', $patient->id)
-                ->with(['patient', 'appointment'])->paginate(5);
-            $data['payments'] = $payments;
-            $data['payments'] = Payment::with(['patient', 'appointment'])->paginate(5);
-            // Fetch appointments for the logged-in patient
-            $data['appointments'] = Appointment::where('patient_id', $patient->id)
-                ->orderBy('date', 'asc') // Ensure column names match your table schema
-                ->get();
-            return view('appointments.my-appointments', $data);
+            $patient = Patient::where('user_id', $userId)->first();
 
-
-        } elseif (Auth::user()->hasRole('Doctor')) {
-            $doctor = Doctor::where('user_id', Auth::id())->first();
-
-            if (!$doctor) {
-                // Handle the case where the user is not a patient
-                return redirect()->route('home')->with('error', 'You do not have any appointments.');
+            if (!$patient) {
+                // Redirect if the patient record is not found
+                return redirect()->route('home')->with('error', 'Patient record not found.');
             }
 
-            $appointments = Appointment::where('doctor_id', $doctor->id)->orderBy('date', 'asc')->get();
-            return view('appointments.my-appointments', compact('appointments'));
+            // Fetch payments and appointments for the patient
+            $data['payments'] = Payment::where('patient_id', $patient->id)
+                ->with(['patient', 'appointment'])
+                ->paginate(5);
+
+            $data['appointments'] = Appointment::where('patient_id', $patient->id)
+                ->orderBy('date', 'asc')
+                ->get();
+
+            $data['reviews'] = Review::all();
+
+            return view('appointments.my-appointments', $data);
         }
+
+        // Check if the user is a Doctor
+        if (Auth::user()->hasRole('Doctor')) {
+            $doctor = Doctor::where('user_id', $userId)->first();
+
+            if (!$doctor) {
+                // Redirect if the doctor record is not found
+                return redirect()->route('home')->with('error', 'Doctor record not found.');
+            }
+
+            // Fetch appointments for the doctor
+            $appointments = Appointment::where('doctor_id', $doctor->id)
+                ->orderBy('date', 'asc')
+                ->get();
+
+            // Fetch payments for all patients linked to these appointments
+            $patientIds = $appointments->pluck('patient_id'); // Extract patient IDs from the appointments
+
+            $payments = Payment::whereIn('patient_id', $patientIds)
+                ->with(['patient', 'appointment'])
+                ->paginate(5);
+
+            $reviews = Review::all();
+
+
+            return view('appointments.my-appointments', compact('appointments', 'payments', 'reviews'));
+        }
+
+        // Handle case where the user has no valid role
+        return redirect()->route('home')->with('error', 'Unauthorized access.');
     }
+
 
     public function deleteMyAppointment($id, Request $request)
     {
