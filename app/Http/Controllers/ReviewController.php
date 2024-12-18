@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PatientHistory;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -55,8 +56,19 @@ class ReviewController extends Controller implements HasMiddleware
 
         $review->save();
 
+        // Link the review to the patient history
+        $appointment = $review->appointment_id;
+        $patientHistory = PatientHistory::where('appointment_id', $appointment)->first();
+
+        if ($patientHistory) { // Check if a record exists
+            $patientHistory->update([
+                'review_id' => $review->id,
+            ]);
+        }
+
         return redirect()->route('my-appointments')->with('success', 'Review submitted successfully.');
     }
+
 
 
     /**

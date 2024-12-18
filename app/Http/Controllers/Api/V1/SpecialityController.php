@@ -90,7 +90,7 @@ class SpecialityController extends Controller
      */
     public function destroy(Speciality $speciality)
     {
-        $this->authorize('destroy', $speciality);
+        $this->authorize('delete', $speciality);
         $speciality->delete();
         return response()->json(['message' => 'Specialty deleted successfully'], 200);
     }

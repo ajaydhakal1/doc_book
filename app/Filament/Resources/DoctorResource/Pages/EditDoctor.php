@@ -16,4 +16,9 @@ class EditDoctor extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return DoctorResource::getUrl();
+    }
 }

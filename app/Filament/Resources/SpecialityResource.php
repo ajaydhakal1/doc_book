@@ -19,7 +19,9 @@ class SpecialityResource extends Resource
 {
     protected static ?string $model = Speciality::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+    protected static ?int $navigationSort = 5;
+
 
     public static function form(Form $form): Form
     {
@@ -41,7 +43,9 @@ class SpecialityResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -62,6 +66,7 @@ class SpecialityResource extends Resource
         return [
             'index' => Pages\ListSpecialities::route('/'),
             'create' => Pages\CreateSpeciality::route('/create'),
+            'view' => Pages\ViewSpeciality::route('/{record}/view'),
             'edit' => Pages\EditSpeciality::route('/{record}/edit'),
         ];
     }

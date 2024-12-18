@@ -28,7 +28,7 @@ class ReviewController extends Controller
      */
     public function store(Request $request, Review $review)
     {
-        $this->authorize('store', $review);
+        $this->authorize('create', $review);
 
         $request->validate([
             'appointment_id' => 'required|exists:appointments,id',
@@ -104,7 +104,7 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
-        $this->authorize('desroy', $review);
+        $this->authorize('delete', $review);
 
         $review->delete();
         return response()->json([

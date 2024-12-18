@@ -10,31 +10,44 @@ use App\Models\User;
 class ReviewPolicy
 {
     /**
-     * Create a new policy instance.
+     * Determine if the user can view a list of reviews.
      */
-    public function __construct()
+    public function index(User $user, Review $review)
     {
-        //
+        return $user->isAdmin() || $review->appointment->doctor_id == $user->doctor->id;
     }
 
-    public function index(User $user, Review $review, Doctor $doctor)
+    /**
+     * Determine if the user can view a review.
+     */
+    public function show(User $user, Review $review)
     {
-        return $user->isAdmin() || $review->appointment->doctor_id == $doctor->id;
+        return $user->isAdmin() ||
+            ($review->appointment->doctor_id == optional($user->doctor)->id) ||
+            ($review->appointment->patient_id == optional($user->patient)->id);
     }
-    public function show(User $user, Doctor $doctor, Patient $patient, Review $review)
-    {
-        return $user->isAdmin() || $review->appointment->doctor_id == $doctor->id || $review->appointment->patient_id == $patient->id;
-    }
-    public function store(User $user)
+
+    /**
+     * Determine if the user can create a review.
+     */
+    public function create(User $user)
     {
         return $user->isAdmin() || $user->isDoctor();
     }
-    public function update(User $user, Doctor $doctor, Review $review)
+
+    /**
+     * Determine if the user can edit a review.
+     */
+    public function edit(User $user, Review $review)
     {
-        return $user->isAdmin() || $review->appointment->doctor_id == $doctor->id;
+        return $user->isAdmin() || $review->appointment->doctor_id == optional($user->doctor)->id;
     }
-    public function destroy(User $user, Doctor $doctor, Review $review)
+
+    /**
+     * Determine if the user can delete a review.
+     */
+    public function delete(User $user, Review $review)
     {
-        return $user->isAdmin() || $review->appointment->doctor_id == $doctor->id;
+        return $user->isAdmin() || $review->appointment->doctor_id == optional($user->doctor)->id;
     }
 }

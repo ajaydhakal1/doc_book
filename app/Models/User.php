@@ -20,7 +20,13 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role_id',
+        'email_verified_at'
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -74,5 +80,5 @@ class User extends Authenticatable
         return $this->role_id == 3;
     }
 
-  
+
 }

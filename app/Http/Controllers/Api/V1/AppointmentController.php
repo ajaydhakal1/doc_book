@@ -7,9 +7,11 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Schedule;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
@@ -45,35 +47,42 @@ class AppointmentController extends Controller
     /**
      * Create Appointment
      */
+
     public function store(Request $request, Appointment $appointment)
     {
-        $this->authorize('store', $appointment);
+        $this->authorize('create', $appointment);
+
+        // Normalize time input to H:i format
+        try {
+            $startTime = Carbon::parse($request->start_time)->format('H:i');
+            $endTime = Carbon::parse($request->end_time)->format('H:i');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid time format'], 422);
+        }
 
         // Validate the request data
+        $request->merge([
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+        ]);
+
         $request->validate([
-            'doctor_id' => 'required',
-            'patient_id' => 'nullable',
-            'disease' => 'required',
-            'date' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'doctor_id' => 'required|exists:doctors,id',
+            'patient_id' => 'nullable|exists:patients,id',
+            'disease' => 'required|string',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
         // Check if the user is authenticated
-        $user = Auth::guard('api')->user(); // Ensure you're using the correct guard
-
+        $user = Auth::guard('api')->user();
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Check if the doctor exists
-        $doctor = Doctor::find($request->doctor_id);
-        if (!$doctor) {
-            return response()->json(['error' => 'Doctor not found'], 404);
-        }
-
-        // Check if the doctor is unavailable or already booked during the requested time slot
-        $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+        // Verify doctor's availability by checking both schedules and appointments
+        $isUnavailable = Schedule::where('doctor_id', $request->doctor_id)
             ->where('date', $request->date)
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_time', [$request->start_time, $request->end_time])
@@ -85,48 +94,51 @@ class AppointmentController extends Controller
             })
             ->exists();
 
-        if ($existingSchedule) {
-            return response()->json(['error' => 'The doctor is already booked or unavailable at the selected time'], 400);
+        $isBooked = Appointment::where('doctor_id', $request->doctor_id)
+            ->where('date', $request->date)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                    ->orWhere(function ($query) use ($request) {
+                        $query->where('start_time', '<', $request->end_time)
+                            ->where('end_time', '>', $request->start_time);
+                    });
+            })
+            ->exists();
+
+        if ($isUnavailable || $isBooked) {
+            return response()->json(['error' => 'The doctor is unavailable or already booked at the selected time'], 400);
         }
 
-        // Handle patient logic
-        if ($request->user()->isAdmin()) {
-            $patientId = $request->patient_id;
-            $status = 'booked';
-        } else {
-            // Assuming the patient is authenticated user
-            $patientId = Auth::user()->patient->id;
-            $status = 'pending';
-        }
+        // Determine the patient and status
+        $patientId = $request->user()->isAdmin() ? $request->patient_id : $user->patient->id;
+        $status = $request->user()->isAdmin() ? 'booked' : 'pending';
 
-        // Check if patient exists if provided
-        if ($patientId && !Patient::find($patientId)) {
-            return response()->json(['error' => 'Patient not found'], 404);
-        }
+        // Create the schedule and appointment
+        DB::transaction(function () use ($request, $patientId, $status) {
+            $schedule = Schedule::create([
+                'doctor_id' => $request->doctor_id,
+                'date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'status' => 'booked',
+            ]);
 
-        // Create the schedule if the doctor is available
-        $schedule = Schedule::create([
-            'doctor_id' => $request->input('doctor_id'),
-            'date' => $request->input('date'),
-            'start_time' => $request->input('start_time'),
-            'end_time' => $request->input('end_time'),
-            'status' => 'booked',
-        ]);
-
-        // Create appointment
-        Appointment::create([
-            'schedule_id' => $schedule->id,
-            'patient_id' => $patientId,
-            'doctor_id' => $request->doctor_id,
-            'disease' => $request->disease,
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'status' => $status,
-        ]);
+            Appointment::create([
+                'schedule_id' => $schedule->id,
+                'patient_id' => $patientId,
+                'doctor_id' => $request->doctor_id,
+                'disease' => $request->disease,
+                'date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'status' => $status,
+            ]);
+        });
 
         return response()->json(['message' => 'Appointment created successfully'], 200);
     }
+
 
 
     /**
@@ -171,7 +183,7 @@ class AppointmentController extends Controller
      */
     public function destroy(Appointment $appointment)
     {
-        $this->authorize('destroy', $appointment);
+        $this->authorize('delete', $appointment);
         $appointment->delete();
         return response()->json(['message' => 'Appointment deleted successfully'], 200);
 

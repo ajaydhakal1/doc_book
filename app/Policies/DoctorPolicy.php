@@ -15,6 +15,10 @@ class DoctorPolicy
         //
     }
 
+    public function create(User $user){
+        return $user->isAdmin();
+    }
+
     public function store(User $user){
         return $user->isAdmin() || !$user;
     }
@@ -26,7 +30,7 @@ class DoctorPolicy
     public function update(User $user, Doctor $doctor){
         return $user->isAdmin() || $user->id === $doctor->user->id;
     }
-    public function destroy(User $user, Doctor $doctor){
-        return $user->role_id === 1 || $user->id === $doctor->user->id;
+    public function delete(User $user, Doctor $doctor){
+        return $user->isAdmin();
     }
 }

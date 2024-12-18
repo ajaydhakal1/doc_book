@@ -15,19 +15,24 @@ class AppointmentPolicy
         //
     }
 
-    public function index(User $user, Appointment $appointment){
+    public function index(User $user, Appointment $appointment)
+    {
         return $user->isAdmin() || $appointment->patient_id == $user->user_id;
     }
-    public function store(User $user, Appointment $appointment){
+    public function create(User $user)
+    {
         return $user->isAdmin() || $user->isPatient();
     }
-    public function show(User $user, Appointment $appointment){
+    public function show(User $user, Appointment $appointment)
+    {
         return $user->isAdmin() || $user->id === $appointment->patient->user->id;
     }
-    public function update(User $user, Appointment $appointment){
+    public function update(User $user)
+    {
         return $user->isAdmin();
     }
-    public function destroy(User $user, Appointment $appointment){
+    public function deletea(User $user, Appointment $appointment)
+    {
         return $user->isAdmin() || $user->id === $appointment->patient->user_id;
     }
 }
