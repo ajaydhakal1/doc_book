@@ -9,6 +9,7 @@
         "blade-ui-kit/blade-heroicons": "^2.5",
         "dedoc/scramble": "^0.11.29",
         "filament/filament": "^3.2",
+        "joaopaulolndev/filament-pdf-viewer": "^1.0",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",

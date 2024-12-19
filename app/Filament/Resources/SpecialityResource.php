@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SpecialityResource\Pages;
 use App\Filament\Resources\SpecialityResource\RelationManagers;
+use App\Filament\Resources\SpecialityResource\RelationManagers\DoctorsRelationManager;
 use App\Models\Speciality;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -57,7 +58,7 @@ class SpecialityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DoctorsRelationManager::class,
         ];
     }
 
