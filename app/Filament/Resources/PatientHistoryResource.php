@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class PatientHistoryResource extends Resource
 {
@@ -94,5 +95,11 @@ class PatientHistoryResource extends Resource
             'view' => Pages\ViewPatientHistory::route('/{record}'),
             'edit' => Pages\EditPatientHistory::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = Auth::user();
+        return $user->role_id == 1;
     }
 }

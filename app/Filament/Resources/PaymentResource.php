@@ -35,6 +35,7 @@ class PaymentResource extends Resource
                     ->numeric(),
                 Forms\Components\TextInput::make('amount')
                     ->required()
+                    ->prefix('Rs')
                     ->numeric(),
                 Forms\Components\TextInput::make('payment_type')
                     ->required(),
@@ -56,6 +57,7 @@ class PaymentResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->prefix('$')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('payment_type')
                     ->searchable(),

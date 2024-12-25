@@ -4,8 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ScheduleResource\Pages;
 use App\Filament\Resources\ScheduleResource\RelationManagers;
+use App\Models\Doctor;
 use App\Models\Schedule;
 use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,16 +29,28 @@ class ScheduleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('doctor_id')
-                    ->required()
-                    ->numeric(),
+                Fieldset::make('Basic Details')
+                    ->schema([
+                        Select::make('doctor_id')
+                            ->label('Doctor')
+                            ->options(
+                                Doctor::with('user')->get()->pluck('user.name', 'id')
+                            )
+                            ->native(false)
+                            ->searchable()
+                            ->required(),
+                    ]),
                 Forms\Components\DatePicker::make('date')
                     ->required(),
-                Forms\Components\TextInput::make('start_time')
+                Forms\Components\TimePicker::make('start_time')
                     ->required(),
-                Forms\Components\TextInput::make('end_time')
+                Forms\Components\TimePicker::make('end_time')
                     ->required(),
-                Forms\Components\TextInput::make('status')
+                Select::make('status')
+                    ->options([
+                        'booked' => 'Booked',
+                        'unavailable' => 'Unavailable'
+                    ])
                     ->required(),
             ]);
     }

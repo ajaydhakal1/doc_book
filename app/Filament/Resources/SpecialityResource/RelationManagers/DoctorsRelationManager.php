@@ -38,6 +38,7 @@ class DoctorsRelationManager extends RelationManager
                         TextInput::make('password')
                             ->password()
                             ->label('Password')
+                            ->hiddenOn('view')
                             ->dehydrateStateUsing(fn($state) => !empty ($state) ? Hash::make($state) : null)
                             ->required(fn($livewire) => $livewire instanceof CreateDoctor), // Required only on create
                         Hidden::make('role_id')

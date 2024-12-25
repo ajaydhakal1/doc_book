@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\DoctorResource\RelationManagers;
 
+use App\Models\Doctor;
 use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -18,10 +21,17 @@ class SchedulesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('doctor.user.name')
-                    ->label('Doctor')
-                    ->required()
-                    ->numeric(),
+                Fieldset::make('Basic Details')
+                    ->schema([
+                        Select::make('doctor_id')
+                            ->label('Doctor')
+                            ->options(
+                                Doctor::with('user')->get()->pluck('user.name', 'id')
+                            )
+                            ->native(false)
+                            ->searchable()
+                            ->required(),
+                    ]),
                 Forms\Components\DatePicker::make('date')
                     ->required(),
                 Forms\Components\TextInput::make('start_time')

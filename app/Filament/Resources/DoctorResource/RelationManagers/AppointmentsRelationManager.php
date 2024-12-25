@@ -24,6 +24,8 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AppointmentsRelationManager extends RelationManager
@@ -144,6 +146,10 @@ class AppointmentsRelationManager extends RelationManager
 
                 Tables\Actions\Action::make('updateStatus')
                     ->label('Update Status')
+                    ->hidden(function (Appointment $record) {
+                        $user = Auth::user();
+                        return $record->status == 'completed' && $user->role_id !== 1 || $user->role_id !== 2;
+                    })
                     ->action(function (Appointment $record, array $data): void {
                         $status = $data['status'];
 
@@ -197,5 +203,11 @@ class AppointmentsRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
+    }
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        $user = Auth::user();
+        return $user->role_id == 1;
     }
 }

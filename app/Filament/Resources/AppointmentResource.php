@@ -10,13 +10,17 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\Schedule;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
@@ -43,63 +47,80 @@ class AppointmentResource extends Resource
     {
         return $form
             ->schema([
-                Fieldset::make('Basic Details')
-                    ->schema([
+
+                Split::make([
+                    Section::make([
                         Select::make('patient_id')
-                            ->label('Patient')
-                            ->options(
-                                Patient::with('user')->get()->pluck('user.name', 'id')
-                            )
-                            ->native(false)
-                            ->searchable()
-                            ->required(),
+                            // ->relationship('patient.user', 'name')
+                            ->options(function () {
+                                $patients = Patient::with('user')->get()->pluck('user.name', 'id');
+
+                                return $patients;
+                            })
+                            ->label('Patient Name')
+                            ->rules('exists:patients,id')
+                            ->required()
+                            ->hidden(Auth::user()->role_id == 3), // Hide for patients
 
                         Select::make('doctor_id')
+                            ->options(Doctor::with('user')->get()->pluck('user.name', 'id'))
                             ->label('Doctor')
-                            ->options(
-                                Doctor::with('user')->get()->pluck('user.name', 'id')
-                            )
-                            ->native(false)
+                            ->rules('exists:doctors,id')
                             ->required()
-                            ->searchable(),
+                            ->reactive()
+                            ->default(fn($record) => $record ? $record->doctor_id : null),
 
                         TextInput::make('disease')
-                            ->label('Disease')
+                            ->label('Disease/Problem')
                             ->required(),
-                    ]),
 
-                Fieldset::make('Appointment Details')
-                    ->schema([
                         DatePicker::make('date')
-                            ->label('Appointment Date')
-                            ->default(Carbon::tomorrow())
-                            ->closeOnDateSelection()
+                            ->minDate(now()->toDateString())
                             ->required(),
 
                         TimePicker::make('start_time')
-                            ->label('Start Time')
-                            ->default(fn() => Carbon::now()->format('H:i'))
                             ->required(),
 
                         TimePicker::make('end_time')
-                            ->label('End Time')
-                            ->default(fn() => Carbon::now()->addHour()->format('H:i'))
+                            ->after('start_time')
                             ->required(),
-
-                        Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'booked' => 'Booked',
-                                'completed' => 'Completed',
-                                'failed' => 'Failed',
-                            ])
-                            ->default('pending')
-                            ->required()
-                            ->disabled(fn($record) => $record && $record->status === 'completed'),
                     ]),
+                ])->from('lg'),
+
+                Split::make([
+                    Placeholder::make('schedules')
+                        ->label('Schedules')
+                        ->content(function ($get) {
+                            $doctorId = $get('doctor_id');
+                            if (!$doctorId) {
+                                return 'No doctor selected.';
+                            }
+
+                            $schedules = Schedule::where('doctor_id', $doctorId)->get();
+
+                            if ($schedules->isEmpty()) {
+                                return 'No schedules available for this doctor.';
+                            }
+
+                            $schedulesData = $schedules->map(function ($schedule) {
+                                return [
+                                    'date' => $schedule->date,
+                                    'start_time' => $schedule->start_time,
+                                    'end_time' => $schedule->end_time,
+                                    'status' => $schedule->status,
+                                ];
+                            })->values()->toArray();
+
+                            return view('filament.pages.list', [
+                                'columns' => ['day', 'time', 'status'],
+                                'rows' => $schedulesData,
+                            ]);
+                        })
+                        ->columnSpanFull(),
+                ]),
             ]);
     }
+
 
     public static function table(Tables\Table $table): Tables\Table
     {
@@ -136,7 +157,6 @@ class AppointmentResource extends Resource
                     ->html(),
             ])
             ->actions([
-
                 TableAction::make('pay')
                     ->label('Pay')
                     ->url(fn(Appointment $record) => $record->payment && $record->payment->payment_status === 'pending'
@@ -263,10 +283,7 @@ class AppointmentResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ]),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                ])
             ]);
     }
 
@@ -274,7 +291,7 @@ class AppointmentResource extends Resource
     {
         return [
             PaymentRelationManager::class,
-            ReviewsRelationManager::class
+            ReviewsRelationManager::class,
         ];
     }
 
@@ -282,8 +299,8 @@ class AppointmentResource extends Resource
     {
         return [
             'index' => Pages\ListAppointments::route('/'),
+            'view' => Pages\ViewAppointment::route('/{record}/view'),
             'create' => Pages\CreateAppointment::route('/create'),
-            'view' => Pages\ViewAppointment::route('/{record}'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -56,16 +57,17 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);  // Assuming each user has one doctor
     }
 
+    // Relationship with Patient
+    public function patient(): HasOne
+    {
+        return $this->hasOne(Patient::class, 'user_id');
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
-    // Relationship with Patient
-    public function patient()
-    {
-        return $this->hasOne(Patient::class);
-    }
 
     public function isAdmin()
     {
@@ -80,5 +82,9 @@ class User extends Authenticatable
         return $this->role_id == 3;
     }
 
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 
 }
