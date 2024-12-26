@@ -65,12 +65,5 @@ class CreateAppointment extends CreateRecord
             'end_time' => $data['end_time'],
             'status' => 'booked',
         ]);
-
-        Notification::make()
-            ->title('Appointment Created')
-            ->body('The appointment has been successfully created.')
-            ->icon('heroicon-o-check-circle')
-            ->success()
-            ->send();
     }
 }

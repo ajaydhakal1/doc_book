@@ -30,6 +30,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconPosition;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -215,19 +217,47 @@ class AppointmentResource extends Resource
                 // ->icon('heroicon-m-user-circle'),
             ])
             ->actions([
-                Tables\Actions\Action::make('pay')
+                ActionGroup::make([
+                    Action::make('esewa')
+                        ->label('Esewa')
+                        ->url(function (Appointment $record) {
+                            if ($record->payment && $record->payment->payment_status === 'pending') {
+                                return route('payment.pay', $record->payment->id);
+                            }
+                            return null;
+                        })
+                        ->action(function (Appointment $record) {
+                            PatientHistory::where('appointment_id', $record->id)
+                                ->update(['payment_id' => $record->payment->id]);
+                        })
+                        ->hidden(function (Appointment $record) {
+                            return $record->status !== 'completed'
+                                || !$record->payment
+                                || $record->payment->payment_status !== 'pending';
+                        })
+                        ->icon('heroicon-o-credit-card')
+                        ->color('success')
+                        ->button(),
+
+                    Action::make('stripe')
+                        ->label('Stripe')
+                        ->url(function (Appointment $record) {
+                            if ($record->payment->payment_status !== 'completed') {
+                                return url('/admin/payments/stripe-payment', ['id' => $record->payment->id]);
+                            }
+                            return null;
+                        })
+                        ->hidden(function (Appointment $record) {
+                            return $record->status !== 'completed'
+                                || !$record->payment
+                                || $record->payment->payment_status !== 'pending';
+                        })
+                        ->icon('heroicon-o-credit-card')
+                        ->color('info')
+                        ->button(),
+                ])
                     ->label('Pay')
-                    ->url(fn(Appointment $record) => $record->payment && $record->payment->payment_status === 'pending'
-                        ? route('payment.pay', $record->payment->id)
-                        : null)
-                    ->action(function (Appointment $record) {
-                        $patientHistory = PatientHistory::where('appointment_id', $record->id);
-                        $patientHistory->update([
-                            'payment_id' => $record->payment->id,
-                        ]);
-                    })
-                    ->hidden(fn(Appointment $record) => $record->status !== 'completed' || !$record->payment || $record->payment->payment_status !== 'pending')
-                    ->icon('heroicon-m-credit-card')
+                    ->icon('heroicon-o-credit-card')
                     ->color('success')
                     ->button(),
 
@@ -235,25 +265,28 @@ class AppointmentResource extends Resource
                     ->label(fn(Appointment $record) => $record->reviews->isEmpty() ? 'Give Comments' : 'View Comments')
                     ->action(function (Appointment $record, array $data): void {
                         if ($record->reviews->isEmpty()) {
-                            $filePath = null;
-                            if (isset($data['pdf'])) {
-                                $filePath = $data['pdf']->store('reviews', 'public');
+                            if (!$data['pdf']) {
+                                $pdf = '';
+                            } else {
+                                $pdf = $data['pdf'];
                             }
 
-                            $record->reviews()->create([
-                                'appointment_id' => $data['appointment_id'],
-                                'comment' => $data['comment'],
-                                'file_path' => $filePath,
+                            // Create a new review record
+                            $review = $record->reviews()->create([
+                                'appointment_id' => $record->id, // Ensure the appointment ID is correct
+                                'comment' => $data['comment'] ?? '', // Default to empty if 'comment' is not set
+                                'pdf' => $pdf, // Store the file path in the 'pdf' column
                             ]);
 
-                            $patientHistory = PatientHistory::where('appointment_id', $record->id);
-                            $patientHistory->update([
-                                'review_id' => $record->reviews()->first()->id,
+                            // Update the patient history to link the review
+                            PatientHistory::where('appointment_id', $record->id)->update([
+                                'review_id' => $review->id,
                             ]);
                         } else {
                             redirect()->back();
                         }
                     })
+
                     ->form(fn(Appointment $record) => $record->reviews->isEmpty() ? [
                         Hidden::make('appointment_id')
                             ->default($record->id),

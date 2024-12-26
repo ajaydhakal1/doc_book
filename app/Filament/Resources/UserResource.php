@@ -128,11 +128,6 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable()
                     ->icon('heroicon-m-envelope'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->dateTime()
-                    ->sortable()
-                    ->icon('heroicon-m-clock'),
                 Tables\Columns\TextColumn::make('role_id')
                     ->label('Role')
                     ->badge()

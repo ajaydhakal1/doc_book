@@ -3,9 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Register as AuthRegister;
-use App\Filament\Widgets\AdminCharts;
-use App\Filament\Widgets\AdminWidgets;
-use App\Filament\Widgets\PatientWidgets;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;

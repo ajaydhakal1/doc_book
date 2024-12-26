@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
-use App\Filament\Resources\PaymentResource\RelationManagers;
 use App\Models\Payment;
 use App\Models\User;
 use Filament\Forms;
@@ -12,10 +11,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\IconPosition;
 
 class PaymentResource extends Resource
 {
@@ -183,6 +180,20 @@ class PaymentResource extends Resource
                 // ->icon('heroicon-m-funnel'),
             ])
             ->actions([
+                // Tables\Actions\Action::make('pay')
+                //     ->label('Pay')
+                //     ->url(function ($record) {
+                //         if ($record && $record->payment_status === 'pending') {
+                //             $url = url('/admin/payments/stripe-payment', ['id' => $record->id]);
+                //             // dd($url);
+                //             return $url;
+                //         }
+                //         return null;
+                //     })
+                //     // ->hidden(fn(Appointment $record) => $record->status !== 'completed' || !$record->payment || $record->payment->payment_status !== 'pending')
+                //     ->icon('heroicon-m-credit-card')
+                //     ->color('success')
+                //     ->button(),
                 Tables\Actions\ViewAction::make()
                     ->icon('heroicon-m-eye'),
                 Tables\Actions\EditAction::make()
@@ -206,6 +217,7 @@ class PaymentResource extends Resource
             'create' => Pages\CreatePayment::route('/create'),
             'view' => Pages\ViewPayment::route('/{record}'),
             'edit' => Pages\EditPayment::route('/{record}/edit'),
+            'stripePayment' => Pages\StripePayment::route('/stripe-payment/{record}'),
         ];
     }
 }
