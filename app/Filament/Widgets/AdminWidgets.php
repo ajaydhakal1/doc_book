@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminWidgets extends BaseWidget
 {
-    protected static ?int $sort = 2;
-    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 1;
+    protected int|string|array $columnSpan = 'full';
 
     protected function getStats(): array
     {
@@ -23,6 +23,7 @@ class AdminWidgets extends BaseWidget
                 ->descriptionIcon('heroicon-m-users')
                 ->chart([7, 4, 6, 8, 5, 9, 7])
                 ->color('info')
+                ->url(route('filament.admin.resources.users.index') . '?activeTab=All')
                 ->extraAttributes([
                     'class' => 'ring-2 ring-info-50',
                 ]),
@@ -32,6 +33,7 @@ class AdminWidgets extends BaseWidget
                 ->descriptionIcon('heroicon-m-user-group')
                 ->chart([5, 3, 7, 6, 8, 4, 6])
                 ->color('success')
+                ->url(route('filament.admin.resources.users.index') . '?activeTab=Doctors')
                 ->extraAttributes([
                     'class' => 'ring-2 ring-success-50',
                 ]),
@@ -41,6 +43,7 @@ class AdminWidgets extends BaseWidget
                 ->descriptionIcon('heroicon-m-user')
                 ->chart([8, 6, 4, 7, 5, 8, 9])
                 ->color('warning')
+                ->url(route('filament.admin.resources.users.index') . '?activeTab=Patients')
                 ->extraAttributes([
                     'class' => 'ring-2 ring-warning-50',
                 ]),

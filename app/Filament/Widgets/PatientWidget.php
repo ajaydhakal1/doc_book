@@ -14,32 +14,43 @@ use Illuminate\Support\Facades\DB;
 
 class PatientWidget extends BaseWidget
 {
-
     protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
         $user = Auth::user();
-        $patient = Patient::where('user_id', '=', $user->id);
-        // dd($patient);
+        $patient = Patient::where('user_id', '=', $user->id)->first(); // Fetch the first matching patient record
 
         // Check if the user has an associated patient record
         if (!$patient) {
             return [
                 Stat::make('Appointments Today', 0)
                     ->icon('heroicon-o-calendar')
-                    ->color('success'),
+                    ->color('success')
+                    ->extraAttributes([
+                        'class' => 'ring-2 ring-info-50',
+                    ]),
 
                 Stat::make('Appointments This Month', 0)
                     ->icon('heroicon-o-calendar')
-                    ->color('primary'),
+                    ->color('primary')
+                    ->extraAttributes([
+                        'class' => 'ring-2 ring-info-50',
+                    ]),
 
                 Stat::make('Appointments This Year', 0)
                     ->icon('heroicon-o-calendar')
-                    ->color('secondary'),
+                    ->color('secondary')
+                    ->extraAttributes([
+                        'class' => 'ring-2 ring-info-50',
+                    ]),
 
                 Stat::make('Most Preferred Doctor', 'N/A')
                     ->icon('heroicon-o-user')
-                    ->color('warning'),
+                    ->color('warning')
+                    ->extraAttributes([
+                        'class' => 'ring-2 ring-info-50',
+                    ]),
             ];
         }
 
@@ -50,14 +61,13 @@ class PatientWidget extends BaseWidget
 
         // Appointments today
         $appointmentsToday = Appointment::where('patient_id', $patient->id)
-            ->where('date', $today)
+            ->whereDate('date', $today) // Use whereDate instead of where for comparing the date
             ->count();
 
         // Appointments this month
         $appointmentsThisMonth = Appointment::where('patient_id', $patient->id)
             ->whereMonth('date', $thisMonth)
             ->count();
-
 
         // Appointments this year
         $appointmentsThisYear = Appointment::where('patient_id', $patient->id)
@@ -73,7 +83,7 @@ class PatientWidget extends BaseWidget
 
         $mostPreferredDoctorName = null;
         if ($mostPreferredDoctor) {
-            $mostPreferredDoctorName = Doctor::find($mostPreferredDoctor->doctor_id)->user->name;
+            $mostPreferredDoctorName = Doctor::find($mostPreferredDoctor->doctor_id)?->user->name ?? 'N/A';
         }
 
         return [
@@ -89,7 +99,7 @@ class PatientWidget extends BaseWidget
                 ->icon('heroicon-o-calendar')
                 ->color('secondary'),
 
-            Stat::make('Most Preferred Doctor', $mostPreferredDoctorName ?? 'N/A')
+            Stat::make('Most Preferred Doctor', $mostPreferredDoctorName)
                 ->icon('heroicon-o-user')
                 ->color('warning'),
         ];

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminPieChart extends ChartWidget
 {
     protected static ?string $heading = 'Pie Chart - Appointment Status Breakdown';
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
     protected static ?string $maxHeight = '254px'; // Set to your desired height
 
     protected static ?array $options = [

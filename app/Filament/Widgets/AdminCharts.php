@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminCharts extends ChartWidget
 {
     protected static ?string $heading = 'Bar Chart - User Registrations and Appointments';
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 2;
     // protected int|string|array $columnSpan = '1'; // Adjust column span as needed
 
     protected function getType(): string

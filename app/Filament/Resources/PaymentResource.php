@@ -14,34 +14,80 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\IconPosition;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static ?string $navigationLabel = 'Payments';
+    protected static ?string $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 8;
+    protected static ?string $recordTitleAttribute = 'transaction_id';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('payment_status', 'pending')->count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('patient_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('appointment_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('amount')
-                    ->required()
-                    ->prefix('Rs')
-                    ->numeric(),
-                Forms\Components\TextInput::make('payment_type')
-                    ->required(),
-                Forms\Components\TextInput::make('payment_status')
-                    ->required(),
-                Forms\Components\TextInput::make('transaction_id'),
+                Forms\Components\Section::make('Payment Details')
+                    ->description('Manage payment information')
+                    ->icon('heroicon-o-credit-card')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('patient_id')
+                            ->disabledOn('edit')
+                            ->required()
+                            ->numeric()
+                            ->prefixIcon('heroicon-m-user')
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('appointment_id')
+                            ->disabledOn('edit')
+                            ->required()
+                            ->numeric()
+                            ->prefixIcon('heroicon-m-calendar')
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('amount')
+                            ->disabledOn('edit')
+                            ->required()
+                            ->prefix('$')
+                            ->numeric()
+                            ->prefixIcon('heroicon-m-currency-dollar')
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('payment_type')
+                            ->options([
+                                'cash' => 'Cash',
+                                'online' => 'Online',
+                                '-' => 'N/A',
+                            ])
+                            ->required()
+                            ->prefixIcon('heroicon-m-credit-card')
+                            ->native(false)
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('payment_status')
+                            ->options([
+                                'pending' => 'Pending',
+                                'completed' => 'Paid'
+                            ])
+                            ->required()
+                            ->prefixIcon('heroicon-m-check-circle')
+                            ->native(false)
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('transaction_id')
+                            ->prefixIcon('heroicon-m-identification')
+                            ->columnSpan(1),
+                    ]),
             ]);
     }
 
@@ -49,22 +95,47 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('patient.user.name')
+                    ->label('Patient')
+                    ->icon('heroicon-m-user')
+                    ->weight(FontWeight::Bold)
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('appointment_id')
+                    ->icon('heroicon-m-calendar')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
+                    ->icon('heroicon-m-currency-dollar')
                     ->numeric()
-                    ->prefix('$')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('payment_type')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'cash' => 'success',
+                        '-' => 'danger',
+                        'online' => 'info',
+                    })
+                    ->icon(function (Payment $record) {
+                        if ($record->payment_type != '-') {
+                            return 'heroicon-m-credit-card';
+                        }
+                    })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('payment_status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'completed' => 'success',
+                    })
+                    ->icon('heroicon-m-check-circle')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('transaction_id')
-                    ->searchable(),
+                    ->icon('heroicon-m-identification')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Transaction ID copied')
+                    ->copyMessageDuration(1500),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -73,45 +144,51 @@ class PaymentResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])->modifyQueryUsing(function (Builder $query) {
-                // Get the currently authenticated user
+            ])
+            ->modifyQueryUsing(function (Builder $query) {
                 $user = User::find(Auth::user()->id);
-                // $user = User::find(Filament::auth()->user()->id);
-                // dd(Auth::user()->id);
-                // If the user is an admin, they can see all appointments
+
                 if ($user->hasRole('Admin')) {
                     return $query;
                 }
 
-                // If the user is a doctor, only their appointments are shown
                 if ($user->hasRole('Doctor')) {
                     return $query->where('doctor_id', $user->doctor->id);
                 }
 
-                // If the user is a patient, only their appointments are shown
                 if ($user->hasRole('Patient')) {
-
                     if ($user->patient) {
                         return $query->where('patient_id', $user->patient->id);
                     } else {
-                        return $query->whereRaw('1 = 0'); // If no patient relationship, show no appointments
+                        return $query->whereRaw('1 = 0');
                     }
                 }
 
-                // Default to no appointments
                 return $query->whereRaw('1 = 0');
             })
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('payment_status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'completed' => 'Paid',
+                    ]),
+                // ->icon('heroicon-m-funnel'),
+                Tables\Filters\SelectFilter::make('payment_type')
+                    ->options([
+                        'cash' => 'Cash',
+                        '-' => 'N/A',
+                        'online' => 'Online',
+                    ]),
+                // ->icon('heroicon-m-funnel'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\ViewAction::make()
+                    ->icon('heroicon-m-eye'),
+                Tables\Actions\EditAction::make()
+                    ->icon('heroicon-m-pencil'),
+                Tables\Actions\DeleteAction::make()
+                    ->icon('heroicon-m-trash'),
             ]);
     }
 

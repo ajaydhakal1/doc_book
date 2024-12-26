@@ -21,15 +21,22 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationGroup = 'Doctors Management';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?int $navigationSort = 7;
+    protected static ?string $modelLabel = 'Doctor Schedule';
+    protected static ?string $pluralModelLabel = 'Doctor Schedules';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Fieldset::make('Basic Details')
+                Fieldset::make('Schedule Details')
                     ->schema([
                         Select::make('doctor_id')
                             ->label('Doctor')
@@ -38,20 +45,33 @@ class ScheduleResource extends Resource
                             )
                             ->native(false)
                             ->searchable()
-                            ->required(),
-                    ]),
-                Forms\Components\DatePicker::make('date')
-                    ->required(),
-                Forms\Components\TimePicker::make('start_time')
-                    ->required(),
-                Forms\Components\TimePicker::make('end_time')
-                    ->required(),
-                Select::make('status')
-                    ->options([
-                        'booked' => 'Booked',
-                        'unavailable' => 'Unavailable'
+                            ->required()
+                            ->prefixIcon('heroicon-o-user-circle'),
+
+                        Forms\Components\DatePicker::make('date')
+                            ->required()
+                            ->prefixIcon('heroicon-o-calendar'),
+
+                        Forms\Components\TimePicker::make('start_time')
+                            ->seconds(false)
+                            ->required()
+                            ->prefixIcon('heroicon-o-play'),
+
+                        Forms\Components\TimePicker::make('end_time')
+                            ->seconds(false)
+                            ->required()
+                            ->prefixIcon('heroicon-o-stop'),
+
+                        Select::make('status')
+                            ->options([
+                                'booked' => 'Booked',
+                                'unavailable' => 'Unavailable'
+                            ])
+                            ->required()
+                            ->native(false)
+                            ->prefixIcon('heroicon-o-check-circle')
                     ])
-                    ->required(),
+                    ->columns(2),
             ]);
     }
 
@@ -59,36 +79,55 @@ class ScheduleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('doctor_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('doctor.user.name')
+                    ->prefix('Dr.')
+                    ->label('Doctor')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-o-user-circle'),
+
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('start_time'),
-                Tables\Columns\TextColumn::make('end_time'),
+                    ->sortable()
+                    ->icon('heroicon-o-calendar'),
+
+                Tables\Columns\TextColumn::make('start_time')
+                    ->time(format: 'h:i A'),
+
+                Tables\Columns\TextColumn::make('end_time')
+                    ->time(format: 'h:i A'),
+
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'booked' => 'warning',
+                        'unavailable' => 'danger',
+                        default => 'gray'
+                    }),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->icon('heroicon-o-clock'),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->icon('heroicon-o-arrow-path'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\ViewAction::make()
+                    ->color('info'),
+                Tables\Actions\EditAction::make()
+                    ->color('warning'),
+                Tables\Actions\DeleteAction::make()
+                    ->color('danger'),
             ]);
     }
 
