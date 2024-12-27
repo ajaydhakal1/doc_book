@@ -203,6 +203,16 @@ class AppointmentResource extends Resource
                         'failed' => 'heroicon-m-x-circle',
                     }),
             ])
+            ->modifyQueryUsing(function (\Illuminate\Database\Eloquent\Builder $query) {
+                $user = Auth::user();
+                if ($user->role_id === 3) { // Patient role
+                    return $query->where('patient_id', $user->patient->id);
+                } elseif ($user->role_id === 2) { // Doctor role
+                    return $query->where('doctor_id', $user->doctor->id);
+                }
+
+                return $query; // Admin or other roles
+            })
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
