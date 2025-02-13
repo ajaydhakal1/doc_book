@@ -20,7 +20,7 @@ class SchedulePolicy
         return $user->isAdmin() || $user->id === $schedule->doctor_id;
     }
 
-    public function store(User $user, Schedule $schedule): bool
+    public function create(User $user): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
         return $user->isAdmin() || $user->isDoctor();
@@ -44,7 +44,7 @@ class SchedulePolicy
     /**
      * Determine if the user can delete the schedule.
      */
-    public function destroy(User $user, Schedule $schedule): bool
+    public function delete(User $user, Schedule $schedule): bool
     {
         // Allow if the user is an admin or the doctor related to the schedule
         return $user->isAdmin() || $user->id === $schedule->doctor_id;

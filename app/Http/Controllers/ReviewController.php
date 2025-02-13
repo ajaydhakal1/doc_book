@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PatientHistory;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -39,7 +40,7 @@ class ReviewController extends Controller implements HasMiddleware
         $request->validate([
             'appointment_id' => 'required|exists:appointments,id',
             'comment' => 'required|string', // Match the form field and database column name
-            'pdf' => 'nullable|file', // Validate the file for security
+            'pdf' => 'nullable', // Validate the file for security
         ]);
 
         // Save review data
@@ -50,14 +51,23 @@ class ReviewController extends Controller implements HasMiddleware
         // Handle file upload
         if ($request->hasFile('pdf')) {
             $path = $request->file('pdf')->store('reviews', 'public');
-            $review->pdf_path = $path;
+            $review->pdf = $path;
         }
 
         $review->save();
 
+        // Link the review to the patient history
+        $appointment = $review->appointment_id;
+        $patientHistory = PatientHistory::where('appointment_id', $appointment)->first();
+
+        if ($patientHistory) { // Check if a record exists
+            $patientHistory->update([
+                'review_id' => $review->id,
+            ]);
+        }
+
         return redirect()->route('my-appointments')->with('success', 'Review submitted successfully.');
     }
-
 
     /**
      * Display the specified resource.
@@ -92,11 +102,11 @@ class ReviewController extends Controller implements HasMiddleware
         // Handle file upload
         if ($request->hasFile('pdf')) {
             // Delete old PDF if it exists
-            if ($review->pdf_path) {
-                Storage::delete('public/' . $review->pdf_path);
+            if ($review->pdf) {
+                Storage::delete('public/' . $review->pdf);
             }
             $path = $request->file('pdf')->store('reviews', 'public');
-            $review->pdf_path = $path;
+            $review->pdf = $path;
         }
 
         $review->save();
@@ -112,8 +122,8 @@ class ReviewController extends Controller implements HasMiddleware
         $review = Review::findOrFail($id);
 
         // Delete the associated PDF if it exists
-        if ($review->pdf_path) {
-            Storage::delete('public/' . $review->pdf_path);
+        if ($review->pdf) {
+            Storage::delete('public/' . $review->pdf);
         }
 
         $review->delete();

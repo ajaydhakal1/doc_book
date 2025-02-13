@@ -3,111 +3,85 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DoctorResource\Pages;
+use App\Filament\Resources\DoctorResource\RelationManagers;
 use App\Models\Doctor;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Password;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class DoctorResource extends Resource
 {
     protected static ?string $model = Doctor::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Forms\Form $form): Forms\Form
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name'),
+                Forms\Components\TextInput::make('speciality_id')
                     ->required()
-                    ->label('Full Name'),
-                TextInput::make('email')
-                    ->required()
-                    ->email()
-                    ->label('Email'),
-                TextInput::make('password')
-                    ->required()
-                    ->password()
-                    ->label('Password'),
-                TextInput::make('phone')
-                    ->required()
-                    ->label('Phone'),
-                TextInput::make('hourly_rate')
-                    ->required()
-                    ->numeric()
-                    ->label('Hourly Rate'),
-                Select::make('speciality_id')
-                    ->label('Speciality')
-                    ->relationship('speciality', 'name')
+                    ->numeric(),
+                Forms\Components\TextInput::make('phone')
+                    ->tel()
                     ->required(),
+                Forms\Components\TextInput::make('hourly_rate')
+                    ->required()
+                    ->numeric(),
             ]);
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Name')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('phone')
-                    ->label('Phone'),
-                TextColumn::make('hourly_rate')
-                    ->label('Hourly Rate')
+                Tables\Columns\TextColumn::make('user.name')
+                    ->numeric()
                     ->sortable(),
-                TextColumn::make('speciality.name')
-                    ->label('Speciality')
+                Tables\Columns\TextColumn::make('speciality.name')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('hourly_rate')
+                    ->money()
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+            ->filters([
+                //
             ]);
-    }
-
-    public static function mutateFormDataBeforeCreate(array $data): array
-    {
-        // Create a new user first
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
-        // Assign the new user's ID to the doctor's user_id
-        $data['user_id'] = $user->id;
-
-        // Remove user-specific fields from the doctor data
-        unset($data['name'], $data['email'], $data['password']);
-
-        return $data;
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            //
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListDoctors::route('/'),
-            'create' => Pages\CreateDoctor::route('/create'),
-            'edit' => Pages\EditDoctor::route('/{record}/edit'),
         ];
     }
+
+public static function canViewAny(): bool
+{
+    return Auth::user()->role_id == 3;
+}
 }

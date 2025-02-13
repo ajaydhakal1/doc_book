@@ -27,7 +27,7 @@ class PaymentController extends Controller
      * Create Payment     */
     public function store(Request $request, Payment $payment)
     {
-        $this->authorize('store', $payment);
+        $this->authorize('create', $payment);
 
         // Fetch the payment details from the database
         $payment = $request->payment_id;
@@ -74,7 +74,7 @@ class PaymentController extends Controller
      */
     public function update(Request $request, Payment $payment)
     {
-        $this->authorize('update', $payment);
+        $this->authorize('edit', $payment);
 
         $payment->update($request->all());
         return response()->json([
@@ -88,7 +88,7 @@ class PaymentController extends Controller
      */
     public function destroy(Payment $payment)
     {
-        $this->authorize('destroy', $payment);
+        $this->authorize('delete', $payment);
 
         $payment->delete();
         return response()->json([

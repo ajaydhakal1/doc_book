@@ -16,4 +16,9 @@ class EditSpeciality extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return SpecialityResource::getUrl();
+    }
 }

@@ -14,6 +14,10 @@ class SpecialityPolicy
         //
     }
 
+    public function create(User $user)
+    {
+        return $user->isAdmin();
+    }
     public function store(User $user)
     {
         return $user->isAdmin();
@@ -22,7 +26,7 @@ class SpecialityPolicy
     {
         return $user->isAdmin();
     }
-    public function destroy(User $user)
+    public function delete(User $user)
     {
         return $user->isAdmin();
     }

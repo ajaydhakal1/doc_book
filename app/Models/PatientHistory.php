@@ -6,7 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class PatientHistory extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'patient_id',
+        'doctor_id',
+        'appointment_id',
+        'review_id',
+        'payment_id'
+    ];
 
     public function patient()
     {

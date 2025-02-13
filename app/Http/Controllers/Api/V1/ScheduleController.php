@@ -41,7 +41,7 @@ class ScheduleController extends Controller
 
     public function store(Request $request, Schedule $schedule)
     {
-        $this->authorize('store', $schedule);
+        $this->authorize('create', $schedule);
         // Validate the request data
         $request->validate([
             'doctor_id' => 'required',

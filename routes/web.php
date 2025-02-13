@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\PaymentResource\Pages\StripePayment;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
@@ -53,3 +54,4 @@ Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('pa
 Route::delete('/payments/{id}/delete', [PaymentController::class, 'delete'])->name('payment.delete');
 
 Route::resource('reviews', ReviewController::class);
+Route::post('stripe/create-charge/{payment}', [StripePayment::class, 'createCharge'])->name('stripe.create-charge');

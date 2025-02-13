@@ -223,6 +223,13 @@ class AppointmentController extends Controller implements HasMiddleware
             ]);
         }
 
+        if ($appointment->reviews) {
+            $patientHistory = PatientHistory::where('appointment_id', $appointment->id);
+            $patientHistory->update([
+                'review_id' => $appointment->review->id,
+            ]);
+        }
+
         // Save the updated appointment
         $appointment->save();
 
@@ -337,12 +344,16 @@ class AppointmentController extends Controller implements HasMiddleware
                 ]);
 
                 // Create patient history record
-                $firstReview = $appointment->reviews->first();
+                // if ($appointment->reviews) {
+                //     $firstReview = $appointment->reviews->first();
+                // } else {
+                //     $firstReview = null;
+                // }
                 PatientHistory::create([
                     'appointment_id' => $appointment->id,
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $appointment->doctor_id,
-                    // 'review_id' => $firstReview->id,
+                    // 'review_id' => $firstReview,
                     'payment_id' => $payment->id,
                 ]);
 
