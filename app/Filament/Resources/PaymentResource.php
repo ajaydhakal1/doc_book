@@ -130,6 +130,7 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('transaction_id')
                     ->icon('heroicon-m-identification')
                     ->searchable()
+                    ->tooltip('Click To Copy')
                     ->copyable()
                     ->copyMessage('Transaction ID copied')
                     ->copyMessageDuration(1500),
@@ -145,15 +146,15 @@ class PaymentResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::find(Auth::user()->id);
 
-                if ($user->hasRole('Admin')) {
+                if ($user->role_id == 1) {
                     return $query;
                 }
 
-                if ($user->hasRole('Doctor')) {
+                if ($user->role_id == 2) {
                     return $query->where('doctor_id', $user->doctor->id);
                 }
 
-                if ($user->hasRole('Patient')) {
+                if ($user->role_id == 3) {
                     if ($user->patient) {
                         return $query->where('patient_id', $user->patient->id);
                     } else {

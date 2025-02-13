@@ -338,7 +338,8 @@ class AppointmentResource extends Resource
                     })
                     ->action(function (Appointment $record, array $data): void {
                         if ($record->status === 'completed') {
-                            throw new \Exception('Status cannot be changed after completion.');
+                            Notification::make('Status cannot be changed after completion.')
+                                ->danger();
                         }
 
                         $status = $data['status'];

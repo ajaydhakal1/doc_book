@@ -19,7 +19,7 @@ class PaymentPolicy
 
     public function index(User $user, Payment $payment, Patient $patient, Doctor $doctor)
     {
-        return $user->isAdmin() || $payment->appointment->doctor_id == $doctor->id || $payment->appointment->patient_id == $patient->id;
+        return $user->isAdmin() || $payment->appointment->doctor_id == $doctor->id || $payment->appointment->patient_id == $user->patient->id;
     }
     public function show(User $user, Payment $payment, Patient $patient, Doctor $doctor)
     {

@@ -37,6 +37,9 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
+            ->spa()
+            ->sidebarCollapsibleOnDesktop()
+            ->brandLogo('assets/logo.png')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -46,7 +49,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 // AdminWidgets::class,
                 // AdminCharts::class,
-                
+
             ])
             ->middleware([
                 EncryptCookies::class,
